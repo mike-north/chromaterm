@@ -142,6 +142,18 @@ export interface Color {
 const stateSymbol = Symbol('colorState');
 
 /**
+ * Extracts the ColorState from a Color instance.
+ * @internal
+ */
+export function getColorState(color: Color): ColorState {
+  const state = (color as unknown as Record<symbol, ColorState>)[stateSymbol];
+  if (state === undefined) {
+    throw new Error('Invalid Color instance: missing state');
+  }
+  return state;
+}
+
+/**
  * Creates a new Color instance with a transformation added.
  */
 function addTransform(state: ColorState, type: ColorTransform['type'], amount: number): Color {

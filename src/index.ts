@@ -22,3 +22,17 @@ export * from './config/index.js';
 // Absolute colors and direct ANSI access
 export { abs, ansi } from './abs/index.js';
 export type { StyleFunction } from './abs/index.js';
+
+// Gradient support
+export { createGradient, createGradient2D, interpolateOklch } from './gradient/index.js';
+
+export type {
+  Gradient,
+  GradientStop,
+  GradientOptions,
+  Gradient2D,
+  Gradient2DInput,
+  Gradient2DOptions,
+  HueDirection,
+  BlendMode,
+} from './gradient/index.js';

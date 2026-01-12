@@ -1,25 +1,7 @@
 import type { RGB } from '../types.js';
 import { hslToRgb, rgbToHsl } from './conversions.js';
-
-/**
- * Clamps a value between min and max.
- * @internal
- */
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
-
-/**
- * Normalizes hue to 0-360 range by wrapping.
- * @internal
- */
-function normalizeHue(hue: number): number {
-  let normalized = hue % 360;
-  if (normalized < 0) {
-    normalized += 360;
-  }
-  return normalized;
-}
+import { oklchToRgb, rgbToOklch } from './oklch.js';
+import { clamp, normalizeHue, interpolateHue } from './utils.js';
 
 /**
  * Increases the saturation of a color.
@@ -93,11 +75,15 @@ export function rotate(rgb: RGB, degrees: number): RGB {
 }
 
 /**
- * Fades (blends) a color toward a target color.
+ * Fades (blends) a color toward a target color using OKLCH interpolation.
  *
- * This creates an opacity effect by linearly interpolating between
- * the source color and the target color. At amount=0, the result is
- * the source color. At amount=1, the result is the target color.
+ * This creates an opacity effect by interpolating between the source color
+ * and the target color in the perceptually uniform OKLCH color space.
+ * At amount=0, the result is the source color. At amount=1, the result is
+ * the target color.
+ *
+ * OKLCH interpolation provides smoother, more natural color transitions
+ * compared to naive RGB interpolation, avoiding muddy intermediate colors.
  *
  * Use this to create semi-transparent text effects by blending
  * the text color toward the background.
@@ -111,9 +97,18 @@ export function rotate(rgb: RGB, degrees: number): RGB {
  */
 export function fade(rgb: RGB, target: RGB, amount: number): RGB {
   const t = clamp(amount, 0, 1);
-  return {
-    r: Math.round(rgb.r + (target.r - rgb.r) * t),
-    g: Math.round(rgb.g + (target.g - rgb.g) * t),
-    b: Math.round(rgb.b + (target.b - rgb.b) * t),
+
+  // Convert both colors to OKLCH
+  const sourceOklch = rgbToOklch(rgb);
+  const targetOklch = rgbToOklch(target);
+
+  // Interpolate in OKLCH space
+  const interpolated = {
+    l: sourceOklch.l + (targetOklch.l - sourceOklch.l) * t,
+    c: sourceOklch.c + (targetOklch.c - sourceOklch.c) * t,
+    h: interpolateHue(sourceOklch.h, targetOklch.h, t),
   };
+
+  // Convert back to RGB
+  return oklchToRgb(interpolated);
 }

@@ -249,15 +249,20 @@ describe('rotate', () => {
 });
 
 describe('fade', () => {
-  it('should linearly interpolate between source and target', () => {
+  it('should interpolate between source and target using OKLCH', () => {
     const source: RGB = { r: 200, g: 100, b: 50 };
     const target: RGB = { r: 0, g: 0, b: 0 };
 
     const result = fade(source, target, 0.5);
 
-    expect(result.r).toBe(100);
-    expect(result.g).toBe(50);
-    expect(result.b).toBe(25);
+    // OKLCH interpolation produces different results than naive RGB interpolation
+    // Verify that we get a result that's perceptually between the two colors
+    expect(result.r).toBeGreaterThan(0);
+    expect(result.r).toBeLessThan(200);
+    expect(result.g).toBeGreaterThan(0);
+    expect(result.g).toBeLessThan(100);
+    expect(result.b).toBeGreaterThan(0);
+    expect(result.b).toBeLessThan(50);
   });
 
   it('should return source color when amount is 0', () => {
@@ -297,10 +302,17 @@ describe('fade', () => {
 
     const result = fade(foreground, background, 0.5);
 
-    // Should be halfway between dark and white
-    expect(result.r).toBeCloseTo(153, 0);
-    expect(result.g).toBeCloseTo(153, 0);
-    expect(result.b).toBeCloseTo(153, 0);
+    // OKLCH interpolation produces perceptually uniform results
+    // Should be approximately halfway in perceived lightness
+    expect(result.r).toBeGreaterThan(100);
+    expect(result.r).toBeLessThan(200);
+    expect(result.g).toBeGreaterThan(100);
+    expect(result.g).toBeLessThan(200);
+    expect(result.b).toBeGreaterThan(100);
+    expect(result.b).toBeLessThan(200);
+    // For achromatic colors, RGB values should be equal
+    expect(result.r).toBe(result.g);
+    expect(result.g).toBe(result.b);
   });
 
   it('should fade toward a dark background', () => {
@@ -309,34 +321,85 @@ describe('fade', () => {
 
     const result = fade(foreground, background, 0.5);
 
-    // Should be halfway between light and black
-    expect(result.r).toBe(100);
-    expect(result.g).toBe(100);
-    expect(result.b).toBe(100);
+    // OKLCH interpolation produces perceptually uniform results
+    // Should be approximately halfway in perceived lightness
+    expect(result.r).toBeGreaterThan(50);
+    expect(result.r).toBeLessThan(150);
+    expect(result.g).toBeGreaterThan(50);
+    expect(result.g).toBeLessThan(150);
+    expect(result.b).toBeGreaterThan(50);
+    expect(result.b).toBeLessThan(150);
+    // For achromatic colors, RGB values should be equal
+    expect(result.r).toBe(result.g);
+    expect(result.g).toBe(result.b);
   });
 
-  it('should handle fading between two colors', () => {
+  it('should handle fading between two colors with perceptually uniform hue', () => {
     const source: RGB = { r: 255, g: 0, b: 0 }; // Red
     const target: RGB = { r: 0, g: 0, b: 255 }; // Blue
 
     const result = fade(source, target, 0.5);
 
-    // Should be purple-ish
-    expect(result.r).toBeCloseTo(128, 0);
-    expect(result.g).toBe(0);
-    expect(result.b).toBeCloseTo(128, 0);
+    // OKLCH uses shortest hue path, so red->blue goes through purple (not green)
+    // The intermediate color should have some red and blue, minimal green
+    expect(result.g).toBeLessThan(Math.max(result.r, result.b));
+  });
+
+  it('should handle fading between achromatic colors', () => {
+    const source: RGB = { r: 100, g: 100, b: 100 };
+    const target: RGB = { r: 200, g: 200, b: 200 };
+
+    const result = fade(source, target, 0.5);
+
+    // Fading between grays should produce a gray
+    expect(result.r).toBe(result.g);
+    expect(result.g).toBe(result.b);
+    expect(result.r).toBeGreaterThan(100);
+    expect(result.r).toBeLessThan(200);
+  });
+
+  it('should handle fading from achromatic to chromatic color', () => {
+    const source: RGB = { r: 128, g: 128, b: 128 }; // Gray
+    const target: RGB = { r: 255, g: 0, b: 0 }; // Red
+
+    const result = fade(source, target, 0.5);
+
+    // Should produce a desaturated red
+    expect(result.r).toBeGreaterThan(result.g);
+    expect(result.r).toBeGreaterThan(result.b);
+  });
+
+  it('should handle fading from chromatic to achromatic color', () => {
+    const source: RGB = { r: 255, g: 0, b: 0 }; // Red
+    const target: RGB = { r: 128, g: 128, b: 128 }; // Gray
+
+    const result = fade(source, target, 0.5);
+
+    // Should produce a desaturated red
+    expect(result.r).toBeGreaterThan(result.g);
+    expect(result.r).toBeGreaterThan(result.b);
   });
 
   it('should round RGB values to integers', () => {
     const source: RGB = { r: 100, g: 100, b: 100 };
     const target: RGB = { r: 0, g: 0, b: 0 };
 
-    // 0.3 would give 70, 0.7 would give 30
     const result = fade(source, target, 0.3);
 
     expect(Number.isInteger(result.r)).toBe(true);
     expect(Number.isInteger(result.g)).toBe(true);
     expect(Number.isInteger(result.b)).toBe(true);
+  });
+
+  it('should take shortest hue path when interpolating', () => {
+    const source: RGB = { r: 255, g: 0, b: 0 }; // Red (hue ~0°)
+    const target: RGB = { r: 255, g: 0, b: 128 }; // Red-violet (hue ~300°)
+
+    const result = fade(source, target, 0.5);
+
+    // Should go through magenta, not through green/yellow
+    // Magenta has high R and B, low G
+    expect(result.g).toBeLessThan(Math.min(result.r, result.b));
   });
 });
 

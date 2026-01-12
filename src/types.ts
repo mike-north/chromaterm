@@ -27,6 +27,23 @@ export interface HSL {
 }
 
 /**
+ * OKLCH color representation using the OKLCH color space.
+ *
+ * OKLCH is a perceptually uniform color space that's particularly useful
+ * for color interpolation and gradient generation.
+ *
+ * @public
+ */
+export interface OKLCH {
+  /** Lightness: 0 (black) to 1 (white) */
+  l: number;
+  /** Chroma: 0 (gray) to ~0.4 (highly saturated) */
+  c: number;
+  /** Hue: 0-360 degrees, or undefined for achromatic (gray) colors */
+  h: number | undefined;
+}
+
+/**
  * ANSI color names for the standard 16-color palette.
  *
  * @public
