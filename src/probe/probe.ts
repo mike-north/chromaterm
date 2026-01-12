@@ -4,6 +4,29 @@ import { generateAllQueries } from './osc.js';
 import { parseOscResponses } from './parse.js';
 
 /**
+ * Drains stdin for a given duration to consume any late-arriving data.
+ * This prevents terminal responses from leaking to stdout.
+ *
+ * @param duration - How long to drain in milliseconds
+ *
+ * @internal
+ */
+async function drainStdin(duration: number): Promise<void> {
+  return new Promise((resolve) => {
+    const onData = (): void => {
+      // Just consume the data, don't do anything with it
+    };
+
+    process.stdin.on('data', onData);
+
+    globalThis.setTimeout(() => {
+      process.stdin.removeListener('data', onData);
+      resolve();
+    }, duration);
+  });
+}
+
+/**
  * Probe the terminal for its color palette.
  *
  * Uses OSC escape sequences to query the terminal for:
@@ -65,6 +88,10 @@ export async function probeTerminalPalette(
 
     // Wait for responses (or timeout)
     buffer = await responsePromise;
+
+    // Drain any late-arriving responses to prevent them from leaking to stdout
+    // Some terminals send responses asynchronously
+    await drainStdin(50);
 
     // Parse accumulated responses
     const parsed = parseOscResponses(buffer);

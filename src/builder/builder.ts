@@ -49,6 +49,21 @@ export interface Color {
    */
   rotate(degrees: number): Color;
 
+  /**
+   * Fades the color toward the background, creating an opacity effect.
+   *
+   * When applied to a foreground color:
+   * - If the color has an explicit background (via `.on()`), fades toward that background
+   * - Otherwise, fades toward the terminal's background color
+   *
+   * When applied to a background color used in `.on()`:
+   * - Fades toward the terminal's background color
+   *
+   * @param amount - Amount to fade (0.0 = fully opaque, 1.0 = fully transparent/faded)
+   * @returns A new Color instance with the fade transformation applied
+   */
+  fade(amount: number): Color;
+
   // Foreground/background composition
   /**
    * Sets the background color.
@@ -178,6 +193,7 @@ export function createColor(state: ColorState): Color {
   colorFunction.lighten = (amount: number) => addTransform(state, 'lighten', amount);
   colorFunction.darken = (amount: number) => addTransform(state, 'darken', amount);
   colorFunction.rotate = (degrees: number) => addTransform(state, 'rotate', degrees);
+  colorFunction.fade = (amount: number) => addTransform(state, 'fade', amount);
 
   // Add composition methods
   colorFunction.on = (background: Color) => {

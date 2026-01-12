@@ -2,6 +2,19 @@
 
 **Terminal colors that adapt to your user's color scheme.**
 
+<p align="center">
+  <img src="demo/vhs/dracula.gif" width="280" alt="Dracula theme">
+  <img src="demo/vhs/solarized-light.gif" width="280" alt="Solarized Light theme">
+  <img src="demo/vhs/monokai.gif" width="280" alt="Monokai theme">
+</p>
+<p align="center">
+  <img src="demo/vhs/one-dark.gif" width="280" alt="One Dark theme">
+  <img src="demo/vhs/rose-pine.gif" width="280" alt="Rose Pine theme">
+  <img src="demo/vhs/retro.gif" width="280" alt="Retro theme">
+</p>
+
+<p align="center"><em>Same code, different themes — colors that harmonize with your user's terminal.</em></p>
+
 ChromaTerm is a Node.js library that lets CLI authors express colors as transformations of the user's terminal palette. Instead of hardcoding exact RGB values that may clash with the user's carefully chosen terminal theme, ChromaTerm's colors harmonize with whatever palette the terminal is using.
 
 ```typescript
@@ -80,6 +93,7 @@ async function main() {
   console.log(theme.blue.darken(0.2)('Darker blue'));
   console.log(theme.green.saturate(0.3)('More vivid green'));
   console.log(theme.magenta.rotate(30)('Hue-shifted magenta'));
+  console.log(theme.cyan.fade(0.5)('Faded cyan'));
 
   // Combine foreground and background
   console.log(theme.white.on(theme.red)('White on red'));
@@ -167,13 +181,28 @@ theme.white.on(theme.red)('white text on red background');
 
 ### Color Transforms
 
-| Method                | Effect                    |
-| --------------------- | ------------------------- |
-| `.lighten(amount)`    | Increase lightness (0-1)  |
-| `.darken(amount)`     | Decrease lightness (0-1)  |
-| `.saturate(amount)`   | Increase saturation (0-1) |
-| `.desaturate(amount)` | Decrease saturation (0-1) |
-| `.rotate(degrees)`    | Shift hue (-360 to 360)   |
+| Method                | Effect                                   |
+| --------------------- | ---------------------------------------- |
+| `.lighten(amount)`    | Increase lightness (0-1)                 |
+| `.darken(amount)`     | Decrease lightness (0-1)                 |
+| `.saturate(amount)`   | Increase saturation (0-1)                |
+| `.desaturate(amount)` | Decrease saturation (0-1)                |
+| `.rotate(degrees)`    | Shift hue (-360 to 360)                  |
+| `.fade(amount)`       | Fade toward background for opacity (0-1) |
+
+The `.fade()` transform creates an opacity effect by linearly interpolating between the color and its background:
+
+- For foreground colors with an explicit background (via `.on()`), fades toward that background
+- For foreground colors without a background, fades toward the terminal background
+- For background colors, fades toward the terminal background
+
+```typescript
+// Fade foreground toward its background
+theme.white.on(theme.blue).fade(0.5)('50% opacity white on blue');
+
+// Fade toward terminal background
+theme.red.fade(0.3)('30% faded red');
+```
 
 Transforms require T3 capability to produce visible changes. At T1/T2, transforms are no-ops and return the base color.
 
@@ -218,7 +247,7 @@ const theme = createT1Theme();
 
 ## Absolute Colors with `abs`
 
-When you need exact colors that don't adapt (brand colors, specific design tokens), use the `abs` export—a direct re-export of chalk:
+When you need exact colors that don't adapt (brand colors, specific design tokens), use the `abs` export for truly absolute RGB/hex colors:
 
 ```typescript
 import { createTheme, abs } from 'chromaterm';
@@ -231,7 +260,40 @@ console.log(theme.red('This matches their terminal red'));
 // Absolute: exact color regardless of theme
 console.log(abs.hex('#ff6600')('This is always #ff6600'));
 console.log(abs.rgb(255, 102, 0)('Same orange via RGB'));
+
+// Background colors
+console.log(abs.bgHex('#000080')('Navy background'));
+console.log(abs.bgRgb(0, 0, 128)('Also navy background'));
 ```
+
+The `abs` object provides:
+
+- `abs.hex(color)` - Foreground color from hex string
+- `abs.bgHex(color)` - Background color from hex string
+- `abs.rgb(r, g, b)` - Foreground color from RGB values
+- `abs.bgRgb(r, g, b)` - Background color from RGB values
+
+## Direct ANSI with `ansi`
+
+If you want raw ANSI escape codes without ChromaTerm's theme system, use the `ansi` export (a direct re-export of chalk):
+
+```typescript
+import { ansi } from 'chromaterm';
+
+// Standard ANSI colors (look different in each terminal theme)
+console.log(ansi.red('ANSI red'));
+console.log(ansi.bgBlue('Blue background'));
+
+// Modifiers
+console.log(ansi.bold('Bold text'));
+console.log(ansi.italic('Italic text'));
+
+// Chaining
+console.log(ansi.red.bold('Bold red'));
+console.log(ansi.bgYellow.black('Black on yellow'));
+```
+
+Use `ansi` when you want chalk-compatible behavior without theme adaptation.
 
 ## Environment Variables
 
@@ -268,11 +330,11 @@ function logError(theme: Theme, message: string): void {
 
 | Feature               | Chalk   | ChromaTerm                              |
 | --------------------- | ------- | --------------------------------------- |
-| Hardcoded colors      | Yes     | Via `abs` export                        |
-| Theme-relative colors | No      | Yes                                     |
+| Hardcoded ANSI colors | Yes     | Via `ansi` export (re-exports chalk)    |
+| Absolute RGB/hex      | Yes     | Via `abs` export (hex, rgb only)        |
+| Theme-relative colors | No      | Yes (main API)                          |
 | Color transforms      | No      | Yes (lighten, darken, saturate, rotate) |
 | Palette probing       | No      | Yes (OSC 4/10/11)                       |
-| VS Code integration   | No      | Yes (reads settings.json)               |
 | Graceful degradation  | Partial | Full (T3→T2→T1)                         |
 
 ## Running the Demo

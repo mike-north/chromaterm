@@ -16,6 +16,7 @@ describe('T3 color resolution', () => {
         transforms: [{ type: 'saturate', amount: 0.2 }],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -34,6 +35,7 @@ describe('T3 color resolution', () => {
         transforms: [{ type: 'desaturate', amount: 0.3 }],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -51,6 +53,7 @@ describe('T3 color resolution', () => {
         transforms: [{ type: 'lighten', amount: 0.2 }],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -68,6 +71,7 @@ describe('T3 color resolution', () => {
         transforms: [{ type: 'darken', amount: 0.2 }],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -85,6 +89,7 @@ describe('T3 color resolution', () => {
         transforms: [{ type: 'rotate', amount: 120 }],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -106,6 +111,7 @@ describe('T3 color resolution', () => {
         ],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -121,6 +127,7 @@ describe('T3 color resolution', () => {
         transforms: [{ type: 'saturate', amount: 0.5 }],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'ansi16', theme: 'blind', isTTY: true },
       };
 
@@ -141,6 +148,7 @@ describe('T3 color resolution', () => {
         transforms: [],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -158,6 +166,7 @@ describe('T3 color resolution', () => {
         transforms: [],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'ansi256', theme: 'palette', isTTY: true },
       };
 
@@ -175,6 +184,7 @@ describe('T3 color resolution', () => {
         transforms: [],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'ansi16', theme: 'palette', isTTY: true },
       };
 
@@ -193,6 +203,7 @@ describe('T3 color resolution', () => {
         transforms: [],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'none', theme: 'palette', isTTY: true },
       };
 
@@ -212,6 +223,7 @@ describe('T3 color resolution', () => {
         transforms: [{ type: 'lighten', amount: 0.2 }],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -221,6 +233,7 @@ describe('T3 color resolution', () => {
         transforms: [],
         modifiers: {},
         background: bgState,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -241,6 +254,7 @@ describe('T3 color resolution', () => {
         transforms: [],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'ansi256', theme: 'palette', isTTY: true },
       };
 
@@ -250,6 +264,7 @@ describe('T3 color resolution', () => {
         transforms: [],
         modifiers: {},
         background: bgState,
+        terminalBackground: null,
         capabilities: { color: 'ansi256', theme: 'palette', isTTY: true },
       };
 
@@ -270,6 +285,7 @@ describe('T3 color resolution', () => {
         transforms: [{ type: 'saturate', amount: 0.3 }],
         modifiers: { bold: true },
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -289,6 +305,7 @@ describe('T3 color resolution', () => {
         transforms: [{ type: 'lighten', amount: 0.2 }],
         modifiers: { bold: true, underline: true, italic: true },
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 
@@ -306,6 +323,7 @@ describe('T3 color resolution', () => {
         transforms: [],
         modifiers: {},
         background: null,
+        terminalBackground: null,
         capabilities: { color: 'truecolor', theme: 'palette', isTTY: true },
       };
 

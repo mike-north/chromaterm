@@ -1,148 +1,173 @@
 import { describe, it, expect } from 'vitest';
-import { abs } from '../../src/index.js';
+import { abs, ansi } from '../../src/index.js';
 
-describe('abs (chalk re-export)', () => {
-  it('should export chalk as abs', () => {
-    expect(abs).toBeDefined();
-    expect(typeof abs).toBe('function');
+describe('abs (absolute colors)', () => {
+  describe('abs.hex', () => {
+    it('should be a function', () => {
+      expect(typeof abs.hex).toBe('function');
+    });
+
+    it('should return a style function', () => {
+      const orange = abs.hex('#ff6600');
+      expect(typeof orange).toBe('function');
+    });
+
+    it('should produce styled strings', () => {
+      const result = abs.hex('#ff6600')('orange');
+      expect(typeof result).toBe('string');
+      expect(result).toContain('orange');
+    });
+
+    it('should handle various hex formats', () => {
+      expect(abs.hex('#ff6600')('test')).toContain('test');
+      expect(abs.hex('ff6600')('test')).toContain('test');
+      expect(abs.hex('#FFF')('test')).toContain('test');
+    });
   });
 
-  it('should have chalk color methods', () => {
-    expect(typeof abs.red).toBe('function');
-    expect(typeof abs.green).toBe('function');
-    expect(typeof abs.blue).toBe('function');
-    expect(typeof abs.yellow).toBe('function');
-    expect(typeof abs.magenta).toBe('function');
-    expect(typeof abs.cyan).toBe('function');
-    expect(typeof abs.white).toBe('function');
-    expect(typeof abs.black).toBe('function');
+  describe('abs.bgHex', () => {
+    it('should be a function', () => {
+      expect(typeof abs.bgHex).toBe('function');
+    });
+
+    it('should return a style function', () => {
+      const bgOrange = abs.bgHex('#ff6600');
+      expect(typeof bgOrange).toBe('function');
+    });
+
+    it('should produce styled strings', () => {
+      const result = abs.bgHex('#ff6600')('background');
+      expect(typeof result).toBe('string');
+      expect(result).toContain('background');
+    });
   });
 
-  it('should have chalk style methods', () => {
-    expect(typeof abs.bold).toBe('function');
-    expect(typeof abs.dim).toBe('function');
-    expect(typeof abs.italic).toBe('function');
-    expect(typeof abs.underline).toBe('function');
-    expect(typeof abs.strikethrough).toBe('function');
+  describe('abs.rgb', () => {
+    it('should be a function', () => {
+      expect(typeof abs.rgb).toBe('function');
+    });
+
+    it('should return a style function', () => {
+      const custom = abs.rgb(100, 200, 50);
+      expect(typeof custom).toBe('function');
+    });
+
+    it('should produce styled strings', () => {
+      const result = abs.rgb(255, 102, 0)('custom');
+      expect(typeof result).toBe('string');
+      expect(result).toContain('custom');
+    });
+
+    it('should handle edge values', () => {
+      expect(abs.rgb(0, 0, 0)('black')).toContain('black');
+      expect(abs.rgb(255, 255, 255)('white')).toContain('white');
+    });
   });
 
-  it('should have chalk hex method', () => {
-    expect(typeof abs.hex).toBe('function');
+  describe('abs.bgRgb', () => {
+    it('should be a function', () => {
+      expect(typeof abs.bgRgb).toBe('function');
+    });
+
+    it('should return a style function', () => {
+      const bgCustom = abs.bgRgb(100, 200, 50);
+      expect(typeof bgCustom).toBe('function');
+    });
+
+    it('should produce styled strings', () => {
+      const result = abs.bgRgb(100, 200, 50)('background');
+      expect(typeof result).toBe('string');
+      expect(result).toContain('background');
+    });
   });
 
-  it('should have chalk rgb method', () => {
-    expect(typeof abs.rgb).toBe('function');
+  describe('edge cases', () => {
+    it('should handle empty strings', () => {
+      const result = abs.hex('#ff0000')('');
+      expect(typeof result).toBe('string');
+    });
+
+    it('should handle very long strings', () => {
+      const longString = 'x'.repeat(10000);
+      const result = abs.rgb(255, 0, 0)(longString);
+      expect(typeof result).toBe('string');
+      expect(result).toContain('x');
+    });
+
+    it('should handle special characters', () => {
+      const special = 'test\t\r\n';
+      const result = abs.hex('#0000ff')(special);
+      expect(typeof result).toBe('string');
+    });
+  });
+});
+
+describe('ansi (direct ANSI codes)', () => {
+  it('should export chalk as ansi', () => {
+    expect(ansi).toBeDefined();
+    expect(typeof ansi).toBe('function');
   });
 
-  it('should have chalk background color methods', () => {
-    expect(typeof abs.bgRed).toBe('function');
-    expect(typeof abs.bgGreen).toBe('function');
-    expect(typeof abs.bgBlue).toBe('function');
-    expect(typeof abs.bgHex).toBe('function');
-    expect(typeof abs.bgRgb).toBe('function');
+  it('should have ANSI color methods', () => {
+    expect(typeof ansi.red).toBe('function');
+    expect(typeof ansi.green).toBe('function');
+    expect(typeof ansi.blue).toBe('function');
+    expect(typeof ansi.yellow).toBe('function');
+    expect(typeof ansi.magenta).toBe('function');
+    expect(typeof ansi.cyan).toBe('function');
+    expect(typeof ansi.white).toBe('function');
+    expect(typeof ansi.black).toBe('function');
+  });
+
+  it('should have style methods', () => {
+    expect(typeof ansi.bold).toBe('function');
+    expect(typeof ansi.dim).toBe('function');
+    expect(typeof ansi.italic).toBe('function');
+    expect(typeof ansi.underline).toBe('function');
+    expect(typeof ansi.strikethrough).toBe('function');
+  });
+
+  it('should have background color methods', () => {
+    expect(typeof ansi.bgRed).toBe('function');
+    expect(typeof ansi.bgGreen).toBe('function');
+    expect(typeof ansi.bgBlue).toBe('function');
   });
 
   it('should produce styled strings', () => {
-    const result = abs.red('test');
+    const result = ansi.red('test');
     expect(typeof result).toBe('string');
-    expect(result.length).toBeGreaterThan(0);
-    // The result should either be styled (with ANSI codes) or plain text (if color is disabled)
-    // Either way, it should contain the input text
     expect(result).toContain('test');
   });
 
   it('should support chaining', () => {
-    const result = abs.bold.red('test');
+    const result = ansi.bold.red('test');
     expect(typeof result).toBe('string');
     expect(result).toContain('test');
   });
 
-  it('should support hex colors', () => {
-    const orange = abs.hex('#ff6600');
-    expect(typeof orange).toBe('function');
-    const result = orange('orange');
-    expect(typeof result).toBe('string');
-    expect(result).toContain('orange');
-  });
-
-  it('should support rgb colors', () => {
-    const custom = abs.rgb(100, 200, 50);
-    expect(typeof custom).toBe('function');
-    const result = custom('custom');
-    expect(typeof result).toBe('string');
-    expect(result).toContain('custom');
-  });
-
-  it('should support background hex colors', () => {
-    const bgOrange = abs.bgHex('#ff6600');
-    expect(typeof bgOrange).toBe('function');
-    const result = bgOrange('background');
-    expect(typeof result).toBe('string');
-    expect(result).toContain('background');
-  });
-
-  it('should support background rgb colors', () => {
-    const bgCustom = abs.bgRgb(100, 200, 50);
-    expect(typeof bgCustom).toBe('function');
-    const result = bgCustom('background');
-    expect(typeof result).toBe('string');
-    expect(result).toContain('background');
-  });
-
   it('should support complex chaining', () => {
-    const result = abs.bold.underline.red.bgBlue('complex');
+    const result = ansi.bold.underline.red.bgBlue('complex');
     expect(typeof result).toBe('string');
     expect(result).toContain('complex');
   });
 
-  it('should support multiple color calls', () => {
-    const red = abs.red('red');
-    const blue = abs.blue('blue');
-    expect(red).toContain('red');
-    expect(blue).toContain('blue');
-  });
-
-  it('should handle empty strings', () => {
-    const result = abs.red('');
-    expect(typeof result).toBe('string');
-    expect(result.length).toBeGreaterThanOrEqual(0);
-  });
-
-  it('should handle multiline strings', () => {
-    const input = 'line1\nline2\nline3';
-    const result = abs.green(input);
-    expect(typeof result).toBe('string');
-    expect(result).toContain('line1');
-    expect(result).toContain('line2');
-    expect(result).toContain('line3');
-  });
-
   it('should be callable directly', () => {
-    const result = abs('plain text');
+    const result = ansi('plain text');
     expect(typeof result).toBe('string');
     expect(result).toContain('plain text');
   });
 
-  // Negative test: invalid hex should not throw (chalk handles gracefully)
-  it('should handle invalid hex gracefully', () => {
-    expect(() => {
-      const invalid = abs.hex('not-a-hex');
-      invalid('test');
-    }).not.toThrow();
+  it('should handle empty strings', () => {
+    const result = ansi.red('');
+    expect(typeof result).toBe('string');
   });
 
-  // Edge case: very long strings
-  it('should handle very long strings', () => {
-    const longString = 'x'.repeat(10000);
-    const result = abs.red(longString);
+  it('should handle multiline strings', () => {
+    const input = 'line1\nline2\nline3';
+    const result = ansi.green(input);
     expect(typeof result).toBe('string');
-    expect(result).toContain('x');
-  });
-
-  // Edge case: special characters
-  it('should handle special characters', () => {
-    const special = 'test\t\r\n\u001b[0m';
-    const result = abs.blue(special);
-    expect(typeof result).toBe('string');
+    expect(result).toContain('line1');
+    expect(result).toContain('line2');
+    expect(result).toContain('line3');
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { rgbToHsl } from '../../src/color/conversions.js';
-import { darken, desaturate, lighten, rotate, saturate } from '../../src/color/transforms.js';
+import { darken, desaturate, fade, lighten, rotate, saturate } from '../../src/color/transforms.js';
 import type { RGB } from '../../src/types.js';
 
 describe('saturate', () => {
@@ -245,6 +245,98 @@ describe('rotate', () => {
     expect(result.r).toBe(original.r);
     expect(result.g).toBe(original.g);
     expect(result.b).toBe(original.b);
+  });
+});
+
+describe('fade', () => {
+  it('should linearly interpolate between source and target', () => {
+    const source: RGB = { r: 200, g: 100, b: 50 };
+    const target: RGB = { r: 0, g: 0, b: 0 };
+
+    const result = fade(source, target, 0.5);
+
+    expect(result.r).toBe(100);
+    expect(result.g).toBe(50);
+    expect(result.b).toBe(25);
+  });
+
+  it('should return source color when amount is 0', () => {
+    const source: RGB = { r: 200, g: 100, b: 50 };
+    const target: RGB = { r: 0, g: 0, b: 0 };
+
+    const result = fade(source, target, 0);
+
+    expect(result).toEqual(source);
+  });
+
+  it('should return target color when amount is 1', () => {
+    const source: RGB = { r: 200, g: 100, b: 50 };
+    const target: RGB = { r: 0, g: 0, b: 0 };
+
+    const result = fade(source, target, 1);
+
+    expect(result).toEqual(target);
+  });
+
+  it('should clamp amount to 0-1 range', () => {
+    const source: RGB = { r: 200, g: 100, b: 50 };
+    const target: RGB = { r: 0, g: 0, b: 0 };
+
+    // Amount > 1 should be clamped to 1
+    const overFaded = fade(source, target, 2.0);
+    expect(overFaded).toEqual(target);
+
+    // Amount < 0 should be clamped to 0
+    const underFaded = fade(source, target, -1.0);
+    expect(underFaded).toEqual(source);
+  });
+
+  it('should fade toward a light background', () => {
+    const foreground: RGB = { r: 50, g: 50, b: 50 }; // Dark text
+    const background: RGB = { r: 255, g: 255, b: 255 }; // White background
+
+    const result = fade(foreground, background, 0.5);
+
+    // Should be halfway between dark and white
+    expect(result.r).toBeCloseTo(153, 0);
+    expect(result.g).toBeCloseTo(153, 0);
+    expect(result.b).toBeCloseTo(153, 0);
+  });
+
+  it('should fade toward a dark background', () => {
+    const foreground: RGB = { r: 200, g: 200, b: 200 }; // Light text
+    const background: RGB = { r: 0, g: 0, b: 0 }; // Black background
+
+    const result = fade(foreground, background, 0.5);
+
+    // Should be halfway between light and black
+    expect(result.r).toBe(100);
+    expect(result.g).toBe(100);
+    expect(result.b).toBe(100);
+  });
+
+  it('should handle fading between two colors', () => {
+    const source: RGB = { r: 255, g: 0, b: 0 }; // Red
+    const target: RGB = { r: 0, g: 0, b: 255 }; // Blue
+
+    const result = fade(source, target, 0.5);
+
+    // Should be purple-ish
+    expect(result.r).toBeCloseTo(128, 0);
+    expect(result.g).toBe(0);
+    expect(result.b).toBeCloseTo(128, 0);
+  });
+
+  it('should round RGB values to integers', () => {
+    const source: RGB = { r: 100, g: 100, b: 100 };
+    const target: RGB = { r: 0, g: 0, b: 0 };
+
+    // 0.3 would give 70, 0.7 would give 30
+    const result = fade(source, target, 0.3);
+
+    expect(Number.isInteger(result.r)).toBe(true);
+    expect(Number.isInteger(result.g)).toBe(true);
+    expect(Number.isInteger(result.b)).toBe(true);
   });
 });
 

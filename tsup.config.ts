@@ -8,6 +8,8 @@ export default defineConfig({
   clean: true,
   target: 'node18',
   splitting: false,
+  // Don't bundle dependencies - they should be imported from node_modules
+  external: ['chalk', 'supports-color'],
   // Generate .cjs for CJS, .js for ESM
   outExtension({ format }) {
     return {

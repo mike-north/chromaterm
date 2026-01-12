@@ -91,3 +91,29 @@ export function rotate(rgb: RGB, degrees: number): RGB {
   hsl.h = normalizeHue(hsl.h + degrees);
   return hslToRgb(hsl);
 }
+
+/**
+ * Fades (blends) a color toward a target color.
+ *
+ * This creates an opacity effect by linearly interpolating between
+ * the source color and the target color. At amount=0, the result is
+ * the source color. At amount=1, the result is the target color.
+ *
+ * Use this to create semi-transparent text effects by blending
+ * the text color toward the background.
+ *
+ * @param rgb - RGB color to fade
+ * @param target - Target color to fade toward
+ * @param amount - Amount to fade (0.0 = fully opaque, 1.0 = fully faded/transparent)
+ * @returns New RGB color blended toward the target
+ *
+ * @public
+ */
+export function fade(rgb: RGB, target: RGB, amount: number): RGB {
+  const t = clamp(amount, 0, 1);
+  return {
+    r: Math.round(rgb.r + (target.r - rgb.r) * t),
+    g: Math.round(rgb.g + (target.g - rgb.g) * t),
+    b: Math.round(rgb.b + (target.b - rgb.b) * t),
+  };
+}

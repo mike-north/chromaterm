@@ -1,62 +1,145 @@
 /**
- * Absolute colors via chalk.
+ * Absolute and ANSI color utilities.
  *
- * Use `abs` when you need exact color values that don't adapt to the user's theme.
- * For theme-relative colors that harmonize with the terminal palette, use the Theme API.
+ * This module provides two distinct color APIs:
  *
- * The `abs` export provides direct access to chalk's color methods without requiring
- * a separate chalk installation. This is useful for:
+ * - `abs` - Truly absolute colors (hex, rgb, hsl) that render the exact same
+ *   color regardless of terminal theme. Use for brand colors, design tokens,
+ *   or any case where you need precise color values.
+ *
+ * - `ansi` - Direct ANSI escape codes without ChromaTerm's theme adaptation.
+ *   These use ANSI color indices (0-15) which render differently in each
+ *   terminal theme, but bypass ChromaTerm's color transformation system.
+ *
+ * @example
+ * ```typescript
+ * import { abs, ansi } from 'chromaterm';
+ *
+ * // Absolute colors - exact RGB values
+ * console.log(abs.hex('#ff6600')('Exact orange'));
+ * console.log(abs.rgb(255, 102, 0)('Also exact orange'));
+ *
+ * // ANSI colors - direct terminal codes
+ * console.log(ansi.red('ANSI red'));
+ * console.log(ansi.bold('Bold text'));
+ * ```
+ *
+ * @packageDocumentation
+ */
+
+// Use createRequire to import CJS module in ESM context
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+
+const chalk = require('chalk') as typeof import('chalk');
+
+/**
+ * A function that applies a color/style to text.
+ *
+ * @public
+ */
+export type StyleFunction = (text: string) => string;
+
+/**
+ * Absolute color utilities for exact RGB/hex values.
+ *
+ * Use these when you need colors that render identically regardless of
+ * the user's terminal theme. Common use cases:
  * - Brand colors that must match exact specifications
- * - Color values specified in design systems
- * - Cases where you need precise RGB/hex values
+ * - Design system tokens
+ * - Any color specified as a precise RGB or hex value
  *
  * @example
  * ```typescript
  * import { abs } from 'chromaterm';
  *
- * // Exact hex color
- * console.log(abs.hex('#ff6600')('Orange text'));
+ * // Hex colors
+ * console.log(abs.hex('#ff6600')('Orange'));
+ * console.log(abs.bgHex('#000080')('Navy background'));
  *
- * // Exact RGB color
- * console.log(abs.rgb(255, 128, 0)('Also orange'));
- *
- * // Standard chalk methods
- * console.log(abs.red('Red text'));
- * console.log(abs.bgBlue.white('White on blue'));
- *
- * // Chaining styles
- * console.log(abs.bold.underline.hex('#ff00ff')('Styled text'));
+ * // RGB colors
+ * console.log(abs.rgb(255, 102, 0)('Orange'));
+ * console.log(abs.bgRgb(0, 0, 128)('Navy background'));
  * ```
  *
- * @remarks
- * The `abs` export is simply a re-export of chalk. All chalk methods and functionality
- * are available through this export.
- *
  * @public
  */
+export const abs = {
+  /**
+   * Create a foreground color from a hex string.
+   *
+   * @param color - Hex color string (e.g., '#ff6600' or 'ff6600')
+   * @returns A function that applies the color to text
+   */
+  hex: (color: string): StyleFunction => {
+    return (text: string) => chalk.hex(color)(text);
+  },
 
-// Use import = require syntax for CommonJS modules without esModuleInterop
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-import chalk = require('chalk');
+  /**
+   * Create a background color from a hex string.
+   *
+   * @param color - Hex color string (e.g., '#ff6600' or 'ff6600')
+   * @returns A function that applies the background color to text
+   */
+  bgHex: (color: string): StyleFunction => {
+    return (text: string) => chalk.bgHex(color)(text);
+  },
+
+  /**
+   * Create a foreground color from RGB values.
+   *
+   * @param r - Red component (0-255)
+   * @param g - Green component (0-255)
+   * @param b - Blue component (0-255)
+   * @returns A function that applies the color to text
+   */
+  rgb: (r: number, g: number, b: number): StyleFunction => {
+    return (text: string) => chalk.rgb(r, g, b)(text);
+  },
+
+  /**
+   * Create a background color from RGB values.
+   *
+   * @param r - Red component (0-255)
+   * @param g - Green component (0-255)
+   * @param b - Blue component (0-255)
+   * @returns A function that applies the background color to text
+   */
+  bgRgb: (r: number, g: number, b: number): StyleFunction => {
+    return (text: string) => chalk.bgRgb(r, g, b)(text);
+  },
+};
 
 /**
- * Re-export of chalk for absolute color support
+ * Direct ANSI escape codes without theme adaptation.
+ *
+ * These colors use standard ANSI color indices (0-15) and render differently
+ * depending on the user's terminal theme. Unlike ChromaTerm's theme colors,
+ * these bypass all color transformation and detection - they're raw ANSI codes.
+ *
+ * Use `ansi` when you want:
+ * - Direct control over ANSI codes
+ * - Compatibility with chalk-style APIs
+ * - To bypass ChromaTerm's theme system entirely
+ *
+ * For colors that adapt intelligently to the user's theme, use the Theme API instead.
+ *
+ * @example
+ * ```typescript
+ * import { ansi } from 'chromaterm';
+ *
+ * // Standard ANSI colors
+ * console.log(ansi.red('Red text'));
+ * console.log(ansi.bgBlue('Blue background'));
+ *
+ * // Modifiers
+ * console.log(ansi.bold('Bold'));
+ * console.log(ansi.italic('Italic'));
+ *
+ * // Chaining
+ * console.log(ansi.red.bold('Bold red'));
+ * ```
  *
  * @public
  */
-export const abs = chalk;
-
-// Re-export chalk types for convenience
-/**
- * The Chalk instance type
- *
- * @public
- */
-export type ChalkInstance = chalk.Chalk;
-
-/**
- * Color support information
- *
- * @public
- */
-export type ColorSupport = chalk.ColorSupport;
+export const ansi = chalk;

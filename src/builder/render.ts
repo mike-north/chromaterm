@@ -1,9 +1,13 @@
-import * as chalk from 'chalk';
+import { createRequire } from 'node:module';
 import type { Chalk } from 'chalk';
 import type { ColorState, ColorTransform } from './types.js';
 import type { RGB, AnsiColorIndex } from '../types.js';
-import { saturate, desaturate, lighten, darken, rotate } from '../color/transforms.js';
+import { saturate, desaturate, lighten, darken, rotate, fade } from '../color/transforms.js';
 import { rgbToAnsi256 } from '../color/quantize.js';
+
+// Use createRequire for chalk v4 (CJS module) to ensure proper access to Instance
+const require = createRequire(import.meta.url);
+const chalk = require('chalk') as typeof import('chalk');
 
 /**
  * Creates a chalk instance with the appropriate color level.
@@ -14,7 +18,7 @@ import { rgbToAnsi256 } from '../color/quantize.js';
  * @internal
  */
 function getChalkInstance(colorLevel: 'none' | 'ansi16' | 'ansi256' | 'truecolor'): Chalk {
-  // Chalk 4.x uses Instance() to create new instances with specific levels
+  // Chalk 4.x uses new chalk.Instance({ level }) to create instances with specific levels
   switch (colorLevel) {
     case 'none':
       return new chalk.Instance({ level: 0 });
@@ -37,30 +41,41 @@ function getChalkInstance(colorLevel: 'none' | 'ansi16' | 'ansi256' | 'truecolor
  * @internal
  */
 export function renderColor(state: ColorState, text: string): string {
-  const { capabilities, modifiers, ansiIndex, baseRgb, transforms, background } = state;
+  const {
+    capabilities,
+    modifiers,
+    ansiIndex,
+    baseRgb,
+    transforms,
+    background,
+    terminalBackground,
+  } = state;
 
   // If no color support, return plain text
   if (capabilities.color === 'none') {
     return text;
   }
 
-  // Resolve foreground color (apply transforms if T3)
-  let fgRgb = baseRgb;
-  if (fgRgb !== null && transforms.length > 0) {
-    // Apply transforms in order
-    for (const transform of transforms) {
-      fgRgb = applyTransform(fgRgb, transform);
-    }
-  }
-
-  // Resolve background color (apply transforms if T3)
+  // Resolve background color first (needed for foreground fade)
   let bgRgb: RGB | null = null;
   if (background !== null) {
     bgRgb = background.baseRgb;
     if (bgRgb !== null && background.transforms.length > 0) {
       for (const transform of background.transforms) {
-        bgRgb = applyTransform(bgRgb, transform);
+        // For background colors, fade toward terminal background
+        bgRgb = applyTransformWithTarget(bgRgb, transform, terminalBackground);
       }
+    }
+  }
+
+  // Resolve foreground color (apply transforms if T3)
+  let fgRgb = baseRgb;
+  if (fgRgb !== null && transforms.length > 0) {
+    // For foreground: fade toward explicit background (if set) or terminal background
+    const fadeTarget = bgRgb ?? terminalBackground;
+    // Apply transforms in order
+    for (const transform of transforms) {
+      fgRgb = applyTransformWithTarget(fgRgb, transform, fadeTarget);
     }
   }
 
@@ -107,13 +122,21 @@ export function renderColor(state: ColorState, text: string): string {
 /**
  * Applies a single transform to an RGB color.
  *
+ * This version handles the fade transform which needs a target color.
+ * For fade transforms, if no target is available, the transform is a no-op.
+ *
  * @param rgb - The base RGB color
  * @param transform - The transform to apply
+ * @param fadeTarget - The target color for fade transforms (can be null)
  * @returns The transformed RGB color
  *
  * @internal
  */
-function applyTransform(rgb: RGB, transform: ColorTransform): RGB {
+function applyTransformWithTarget(
+  rgb: RGB,
+  transform: ColorTransform,
+  fadeTarget: RGB | null
+): RGB {
   switch (transform.type) {
     case 'saturate':
       return saturate(rgb, transform.amount);
@@ -125,6 +148,12 @@ function applyTransform(rgb: RGB, transform: ColorTransform): RGB {
       return darken(rgb, transform.amount);
     case 'rotate':
       return rotate(rgb, transform.amount);
+    case 'fade':
+      // Fade needs a target color - if not available, no-op
+      if (fadeTarget === null) {
+        return rgb;
+      }
+      return fade(rgb, fadeTarget, transform.amount);
   }
 }
 
