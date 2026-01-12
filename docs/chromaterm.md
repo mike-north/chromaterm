@@ -43,6 +43,28 @@ Uses sRGB to linear conversion and ITU-R BT.709 coefficients.
 </td></tr>
 <tr><td>
 
+[createGradient(stops, options)](./chromaterm.creategradient.md)
+
+
+</td><td>
+
+Create a 1D gradient from an array of gradient stops.
+
+
+</td></tr>
+<tr><td>
+
+[createGradient2D(input, options)](./chromaterm.creategradient2d.md)
+
+
+</td><td>
+
+Create a 2D gradient from X and Y axis gradient stops.
+
+
+</td></tr>
+<tr><td>
+
 [createT1Theme(options)](./chromaterm.createt1theme.md)
 
 
@@ -165,9 +187,11 @@ Detects VS Code, Cursor, and Windsurf terminals by examining environment variabl
 
 </td><td>
 
-Fades (blends) a color toward a target color.
+Fades (blends) a color toward a target color using OKLCH interpolation.
 
-This creates an opacity effect by linearly interpolating between the source color and the target color. At amount=0, the result is the source color. At amount=1, the result is the target color.
+This creates an opacity effect by interpolating between the source color and the target color in the perceptually uniform OKLCH color space. At amount=0, the result is the source color. At amount=1, the result is the target color.
+
+OKLCH interpolation provides smoother, more natural color transitions compared to naive RGB interpolation, avoiding muddy intermediate colors.
 
 Use this to create semi-transparent text effects by blending the text color toward the background.
 
@@ -181,6 +205,19 @@ Use this to create semi-transparent text effects by blending the text color towa
 </td><td>
 
 Converts an HSL color to RGB color space.
+
+
+</td></tr>
+<tr><td>
+
+[interpolateOklch(color1, color2, t, hueDirection)](./chromaterm.interpolateoklch.md)
+
+
+</td><td>
+
+Interpolate between two RGB colors using OKLCH color space.
+
+This provides perceptually uniform interpolation, meaning that the visual change appears constant as t varies from 0 to 1.
 
 
 </td></tr>
@@ -466,12 +503,91 @@ Options for capability detection.
 </td></tr>
 <tr><td>
 
+[Gradient](./chromaterm.gradient.md)
+
+
+</td><td>
+
+A 1D gradient that can be sampled at any position.
+
+
+</td></tr>
+<tr><td>
+
+[Gradient2D](./chromaterm.gradient2d.md)
+
+
+</td><td>
+
+A 2D gradient that can be sampled at any (x, y) coordinate.
+
+
+</td></tr>
+<tr><td>
+
+[Gradient2DInput](./chromaterm.gradient2dinput.md)
+
+
+</td><td>
+
+Input for creating a 2D gradient.
+
+
+</td></tr>
+<tr><td>
+
+[Gradient2DOptions](./chromaterm.gradient2doptions.md)
+
+
+</td><td>
+
+Options for creating a 2D gradient.
+
+
+</td></tr>
+<tr><td>
+
+[GradientOptions](./chromaterm.gradientoptions.md)
+
+
+</td><td>
+
+Options for creating a gradient.
+
+
+</td></tr>
+<tr><td>
+
+[GradientStop](./chromaterm.gradientstop.md)
+
+
+</td><td>
+
+A stop in a gradient, defining a color at a specific position.
+
+
+</td></tr>
+<tr><td>
+
 [HSL](./chromaterm.hsl.md)
 
 
 </td><td>
 
 HSL color representation.
+
+
+</td></tr>
+<tr><td>
+
+[OKLCH](./chromaterm.oklch.md)
+
+
+</td><td>
+
+OKLCH color representation using the OKLCH color space.
+
+OKLCH is a perceptually uniform color space that's particularly useful for color interpolation and gradient generation.
 
 
 </td></tr>
@@ -735,12 +851,34 @@ Source of appearance detection.
 </td></tr>
 <tr><td>
 
+[BlendMode](./chromaterm.blendmode.md)
+
+
+</td><td>
+
+Blend mode for combining X and Y gradients in 2D space.
+
+
+</td></tr>
+<tr><td>
+
 [ColorLevel](./chromaterm.colorlevel.md)
 
 
 </td><td>
 
 Color capability levels supported by the terminal.
+
+
+</td></tr>
+<tr><td>
+
+[HueDirection](./chromaterm.huedirection.md)
+
+
+</td><td>
+
+Controls how hue interpolation traverses the color wheel.
 
 
 </td></tr>

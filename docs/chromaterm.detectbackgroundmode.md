@@ -54,5 +54,5 @@ _(Optional)_ Detection options including probe timeout
 
 Promise&lt;[AppearanceResult](./chromaterm.appearanceresult.md)<!-- -->&gt;
 
-'light' if luminance &gt; threshold, 'dark' otherwise, 'unknown' if probe fails
+'light' if luminance exceeds threshold, 'dark' otherwise, 'unknown' if probe fails
 
