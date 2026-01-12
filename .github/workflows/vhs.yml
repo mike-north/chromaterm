@@ -36,8 +36,18 @@ jobs:
       - name: Build
         run: pnpm nx build
 
-      - name: Setup VHS
-        uses: charmbracelet/vhs-action@v2
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Setup VHS dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg ttyd
+
+      - name: Install VHS
+        run: go install github.com/charmbracelet/vhs@latest
 
       - name: Generate GIFs
         run: |
