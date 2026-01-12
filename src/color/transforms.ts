@@ -1,5 +1,6 @@
 import type { RGB } from '../types.js';
 import { hslToRgb, rgbToHsl } from './conversions.js';
+import { oklchToRgb, rgbToOklch } from './oklch.js';
 
 /**
  * Clamps a value between min and max.
@@ -19,6 +20,43 @@ function normalizeHue(hue: number): number {
     normalized += 360;
   }
   return normalized;
+}
+
+/**
+ * Interpolates between two hue values, taking the shortest path around the color wheel.
+ * @internal
+ */
+function interpolateHue(
+  h1: number | undefined,
+  h2: number | undefined,
+  t: number
+): number | undefined {
+  // If both hues are undefined (achromatic colors), return undefined
+  if (h1 === undefined && h2 === undefined) {
+    return undefined;
+  }
+
+  // If only one hue is defined, use that one (achromatic to chromatic transition)
+  if (h1 === undefined) {
+    return h2;
+  }
+  if (h2 === undefined) {
+    return h1;
+  }
+
+  // Both hues are defined - interpolate using shortest path
+  let diff = h2 - h1;
+
+  // Normalize the difference to the shortest path
+  if (diff > 180) {
+    diff -= 360;
+  } else if (diff < -180) {
+    diff += 360;
+  }
+
+  // Interpolate and normalize result
+  const result = h1 + diff * t;
+  return normalizeHue(result);
 }
 
 /**
@@ -93,11 +131,15 @@ export function rotate(rgb: RGB, degrees: number): RGB {
 }
 
 /**
- * Fades (blends) a color toward a target color.
+ * Fades (blends) a color toward a target color using OKLCH interpolation.
  *
- * This creates an opacity effect by linearly interpolating between
- * the source color and the target color. At amount=0, the result is
- * the source color. At amount=1, the result is the target color.
+ * This creates an opacity effect by interpolating between the source color
+ * and the target color in the perceptually uniform OKLCH color space.
+ * At amount=0, the result is the source color. At amount=1, the result is
+ * the target color.
+ *
+ * OKLCH interpolation provides smoother, more natural color transitions
+ * compared to naive RGB interpolation, avoiding muddy intermediate colors.
  *
  * Use this to create semi-transparent text effects by blending
  * the text color toward the background.
@@ -111,9 +153,18 @@ export function rotate(rgb: RGB, degrees: number): RGB {
  */
 export function fade(rgb: RGB, target: RGB, amount: number): RGB {
   const t = clamp(amount, 0, 1);
-  return {
-    r: Math.round(rgb.r + (target.r - rgb.r) * t),
-    g: Math.round(rgb.g + (target.g - rgb.g) * t),
-    b: Math.round(rgb.b + (target.b - rgb.b) * t),
+
+  // Convert both colors to OKLCH
+  const sourceOklch = rgbToOklch(rgb);
+  const targetOklch = rgbToOklch(target);
+
+  // Interpolate in OKLCH space
+  const interpolated = {
+    l: sourceOklch.l + (targetOklch.l - sourceOklch.l) * t,
+    c: sourceOklch.c + (targetOklch.c - sourceOklch.c) * t,
+    h: interpolateHue(sourceOklch.h, targetOklch.h, t),
   };
+
+  // Convert back to RGB
+  return oklchToRgb(interpolated);
 }
