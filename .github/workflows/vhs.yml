@@ -70,6 +70,7 @@ jobs:
       - name: Commit GIFs
         if: github.event_name == 'push'
         run: |
+          git lfs install
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add demo/vhs/*.gif
