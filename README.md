@@ -240,6 +240,13 @@ const rainbow = createGradient([
 #### Gradient Options
 
 ```typescript
+// Define stops (using theme colors from detectTheme())
+const stops = [
+  { position: 0, color: theme.red },
+  { position: 0.5, color: theme.yellow },
+  { position: 1, color: theme.green },
+];
+
 const gradient = createGradient(stops, {
   // Control hue interpolation direction
   hueDirection: 'short', // 'short' | 'long' | 'increasing' | 'decreasing'
@@ -261,7 +268,9 @@ gradient.at(-0.25); // Same as gradient.at(0.75)
 Create gradients that vary in two dimensions, useful for ASCII art effects:
 
 ```typescript
-import { createGradient2D } from 'chromaterm';
+import { detectTheme, createGradient2D } from 'chromaterm';
+
+const theme = await detectTheme();
 
 const gradient2D = createGradient2D(
   {
@@ -297,7 +306,7 @@ for (let y = 0; y < 10; y++) {
 For low-level control, use `interpolateOklch` directly:
 
 ```typescript
-import { interpolateOklch, rgbToHsl, hslToRgb } from 'chromaterm';
+import { interpolateOklch } from 'chromaterm';
 import type { RGB } from 'chromaterm';
 
 const red: RGB = { r: 255, g: 0, b: 0 };
