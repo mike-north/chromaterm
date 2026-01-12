@@ -4,7 +4,7 @@ import { probeTerminalPalette } from '../probe/probe.js';
 import { readTerminalConfig, detectVSCodeFamily } from '../config/index.js';
 import { FALLBACK_PALETTE, ANSI_COLOR_INDICES } from '../color/palette.js';
 import type { Theme, ThemeOptions, PaletteData } from './types.js';
-import type { AnsiColorIndex, AnsiColorName } from '../types.js';
+import type { AnsiColorIndex, AnsiColorName, RGB } from '../types.js';
 import type { Capabilities } from '../capability/types.js';
 import type { DetectOptions } from '../capability/types.js';
 
@@ -64,25 +64,60 @@ async function detectPalette(timeout: number): Promise<PaletteData | null> {
   if (detectVSCodeFamily() !== null) {
     const configColors = readTerminalConfig();
     if (configColors !== null && configColors.colors.size >= 16) {
+      // Try OSC probe specifically for foreground/background (more reliable than config)
+      const probeResult = await probeTerminalPalette({ timeout });
       return {
         colors: configColors.colors,
-        foreground: configColors.foreground ?? { r: 229, g: 229, b: 229 },
-        background: configColors.background ?? { r: 0, g: 0, b: 0 },
+        foreground: probeResult?.foreground ??
+          configColors.foreground ?? { r: 229, g: 229, b: 229 },
+        background:
+          probeResult?.background ??
+          configColors.background ??
+          inferBackground(configColors.foreground),
       };
     }
   }
 
-  // Fall back to OSC probing
+  // Fall back to OSC probing for everything
   const probeResult = await probeTerminalPalette({ timeout });
   if (probeResult?.success === true && probeResult.colors.size >= 16) {
     return {
       colors: probeResult.colors,
       foreground: probeResult.foreground ?? { r: 229, g: 229, b: 229 },
-      background: probeResult.background ?? { r: 0, g: 0, b: 0 },
+      background: probeResult.background ?? inferBackground(probeResult.foreground),
     };
   }
 
   return null;
+}
+
+/**
+ * Infers a background color from the foreground color.
+ *
+ * If foreground is light (luminance > 0.5), assumes dark background.
+ * If foreground is dark (luminance <= 0.5), assumes light background.
+ *
+ * @param foreground - The foreground color, or null
+ * @returns Inferred background color
+ *
+ * @internal
+ */
+function inferBackground(foreground: RGB | null): RGB {
+  if (foreground === null) {
+    // Default to dark theme (black background)
+    return { r: 0, g: 0, b: 0 };
+  }
+
+  // Calculate relative luminance (simplified)
+  const luminance = (0.299 * foreground.r + 0.587 * foreground.g + 0.114 * foreground.b) / 255;
+
+  if (luminance > 0.5) {
+    // Light foreground → dark background
+    return { r: 30, g: 30, b: 30 };
+  } else {
+    // Dark foreground → light background
+    return { r: 250, g: 250, b: 250 };
+  }
 }
 
 /**
@@ -95,6 +130,9 @@ async function detectPalette(timeout: number): Promise<PaletteData | null> {
  * @internal
  */
 function buildTheme(capabilities: Capabilities, palette: PaletteData | null): Theme {
+  // Get terminal background for fade transform
+  const terminalBackground = palette?.background ?? null;
+
   /**
    * Creates a Color instance for a given ANSI color name.
    */
@@ -109,6 +147,7 @@ function buildTheme(capabilities: Capabilities, palette: PaletteData | null): Th
       modifiers: {},
       background: null,
       capabilities,
+      terminalBackground,
     });
   };
 
@@ -148,6 +187,7 @@ function buildTheme(capabilities: Capabilities, palette: PaletteData | null): Th
       modifiers: {},
       background: null,
       capabilities,
+      terminalBackground,
     }),
     background: createColor({
       ansiIndex: 0, // black
@@ -156,6 +196,7 @@ function buildTheme(capabilities: Capabilities, palette: PaletteData | null): Th
       modifiers: {},
       background: null,
       capabilities,
+      terminalBackground,
     }),
 
     // Capabilities
@@ -191,6 +232,7 @@ export function createT1Theme(options?: DetectOptions): Theme {
       modifiers: {},
       background: null,
       capabilities,
+      terminalBackground: null, // No terminal background at T1
     });
   };
 

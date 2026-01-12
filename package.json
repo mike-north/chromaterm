@@ -40,7 +40,12 @@
     "generate:docs": "nx run chromaterm:generate:docs",
     "format": "prettier --write .",
     "prepare": "husky",
-    "smoke": "tsx smoke/cli.ts"
+    "smoke": "tsx smoke/cli.ts",
+    "demo": "pnpm nx build && tsx demo/index.ts",
+    "demo:play": "pnpm nx build && tsx demo/playground.ts",
+    "demo:animations": "pnpm nx build && tsx demo/animations.tsx",
+    "demo:vhs": "pnpm nx build && tsx demo/vhs-demo.ts",
+    "demo:record": "pnpm nx build && for tape in demo/vhs/*.tape; do vhs \"$tape\"; done"
   },
   "keywords": [
     "terminal",
@@ -62,16 +67,19 @@
     "@microsoft/api-documenter": "^7.28.2",
     "@microsoft/api-extractor": "^7.48.0",
     "@types/node": "^22.0.0",
+    "@types/react": "^18.3.27",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "@vitest/coverage-v8": "^3.0.0",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",
     "husky": "^9.0.0",
+    "ink": "^5.2.1",
     "knip": "^5.0.0",
     "lint-staged": "^15.0.0",
     "nx": "^21.0.0",
     "prettier": "^3.0.0",
+    "react": "^18.3.1",
     "syncpack": "^13.0.0",
     "tsd": "^0.33.0",
     "tsup": "^8.3.5",
@@ -80,7 +88,7 @@
     "vitest": "^3.0.0"
   },
   "lint-staged": {
-    "*.ts": [
+    "*.{ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ],

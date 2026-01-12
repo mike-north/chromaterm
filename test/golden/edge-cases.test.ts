@@ -45,6 +45,7 @@ function createTestTheme(
       transforms: [],
       modifiers: {},
       background: null,
+      terminalBackground: null,
       capabilities,
     });
   };

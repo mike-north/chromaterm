@@ -10,11 +10,12 @@ export interface ColorTransform {
   /**
    * The type of transformation to apply.
    */
-  type: 'saturate' | 'desaturate' | 'lighten' | 'darken' | 'rotate';
+  type: 'saturate' | 'desaturate' | 'lighten' | 'darken' | 'rotate' | 'fade';
   /**
    * The amount of transformation.
    * For saturate/desaturate/lighten/darken: -1.0 to +1.0
    * For rotate: degrees (can be any number)
+   * For fade: 0.0 (fully opaque) to 1.0 (fully transparent/faded)
    */
   amount: number;
 }
@@ -71,4 +72,10 @@ export interface ColorState {
    * Reference to capabilities.
    */
   capabilities: Capabilities;
+  /**
+   * Terminal background color (for fade transform).
+   * This is the terminal's own background color, used when fading
+   * colors that don't have an explicit background set via on().
+   */
+  terminalBackground: RGB | null;
 }

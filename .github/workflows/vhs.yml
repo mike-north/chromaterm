@@ -1,0 +1,65 @@
+name: Generate VHS GIFs
+
+on:
+  workflow_dispatch: # Manual trigger
+  push:
+    branches: [main]
+    paths:
+      - 'demo/vhs/**'
+      - 'demo/vhs-showcase.tsx'
+      - '.github/workflows/vhs.yml'
+
+jobs:
+  generate:
+    name: Generate Theme GIFs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.24.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm nx build
+
+      - name: Setup VHS
+        uses: charmbracelet/vhs-action@v2
+
+      - name: Generate GIFs
+        run: |
+          for tape in demo/vhs/*.tape; do
+            name=$(basename "$tape")
+            if [[ "$name" != "commands.tape" && "$name" != "settings.tape" ]]; then
+              echo "Recording $name..."
+              vhs "$tape"
+            fi
+          done
+
+      - name: Upload GIFs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: theme-gifs
+          path: demo/vhs/*.gif
+
+      - name: Commit GIFs
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add demo/vhs/*.gif
+          git diff --staged --quiet || git commit -m "Update VHS theme GIFs"
+          git push
