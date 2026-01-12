@@ -15,7 +15,7 @@
 
 <p align="center"><em>Same code, different themes — colors that harmonize with your user's terminal.</em></p>
 
-ChromaTerm is a Node.js library that lets CLI authors express colors as transformations of the user's terminal palette. Instead of hardcoding exact RGB values that may clash with the user's carefully chosen terminal theme, ChromaTerm's colors harmonize with whatever palette the terminal is using.
+ChromaTerm is a Node.js library that expresses colors as transformations of the user's terminal palette. Instead of hardcoding RGB values that clash with carefully chosen themes, your colors harmonize with whatever palette the terminal is using.
 
 ```typescript
 import { createTheme } from 'chromaterm';
@@ -30,15 +30,15 @@ console.log(theme.blue.lighten(0.2)('A lighter blue'));
 
 ## The Problem
 
-Traditional terminal color libraries like chalk use hardcoded ANSI color codes or exact RGB values. This works fine when the CLI author's terminal looks like the user's terminal—but often it doesn't:
+Traditional terminal color libraries use hardcoded ANSI codes or RGB values. This breaks when the user's terminal theme differs from yours:
 
-- A user with a light terminal theme sees your carefully chosen dark-mode colors as muddy and hard to read
-- Brand colors that look great in your terminal clash horribly with the user's Solarized/Dracula/Nord theme
-- "Red" means something different in every terminal theme
+- Dark-mode colors look muddy on light themes
+- Brand colors clash with Solarized/Dracula/Nord palettes
+- "Red" means something different in every theme
 
 ## The Solution
 
-ChromaTerm probes the terminal to discover what colors it's actually using, then applies your color transformations relative to those colors:
+ChromaTerm probes the terminal's actual colors, then applies your transformations relative to them:
 
 ```typescript
 // Traditional approach - hardcoded, inflexible
@@ -190,21 +190,9 @@ theme.white.on(theme.red)('white text on red background');
 | `.rotate(degrees)`    | Shift hue (-360 to 360)                  |
 | `.fade(amount)`       | Fade toward background for opacity (0-1) |
 
-The `.fade()` transform creates an opacity effect by linearly interpolating between the color and its background:
+The `.fade()` transform creates an opacity effect by interpolating toward the background color (explicit via `.on()`, or the terminal background).
 
-- For foreground colors with an explicit background (via `.on()`), fades toward that background
-- For foreground colors without a background, fades toward the terminal background
-- For background colors, fades toward the terminal background
-
-```typescript
-// Fade foreground toward its background
-theme.white.on(theme.blue).fade(0.5)('50% opacity white on blue');
-
-// Fade toward terminal background
-theme.red.fade(0.3)('30% faded red');
-```
-
-Transforms require T3 capability to produce visible changes. At T1/T2, transforms are no-ops and return the base color.
+Transforms require T3 capability to produce visible changes. At T1/T2, transforms are no-ops.
 
 ### Color Introspection
 
@@ -311,8 +299,6 @@ ChromaTerm uses multiple strategies to detect terminal capabilities:
 1. **Color Level**: Uses [supports-color](https://github.com/chalk/supports-color) to detect ANSI support
 2. **VS Code Family**: Parses `settings.json` for `workbench.colorCustomizations` (VS Code, Cursor, Windsurf)
 3. **OSC Probing**: Sends OSC 4/10/11 escape sequences to query the terminal's actual palette colors
-
-The detection happens automatically when you call `createTheme()`.
 
 ## TypeScript Support
 
