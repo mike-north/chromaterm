@@ -1,4 +1,5 @@
 import type { RGB } from '../types.js';
+import { clamp } from './utils.js';
 
 /**
  * OKLCH color representation (OKLab cylindrical coordinates).
@@ -15,14 +16,6 @@ interface OKLCH {
   c: number;
   /** Hue in degrees (0-360), or undefined for achromatic colors */
   h: number | undefined;
-}
-
-/**
- * Clamps a value between min and max.
- * @internal
- */
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
 }
 
 /**

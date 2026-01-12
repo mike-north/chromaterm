@@ -243,15 +243,9 @@ export function lighten(rgb: RGB, amount: number): RGB;
 // @public
 export interface OKLCH {
     c: number;
-    h: number;
+    h: number | undefined;
     l: number;
 }
-
-// Warning: (ae-forgotten-export) The symbol "OKLCH_2" needs to be exported by the entry point index.d.ts
-// Warning: (ae-internal-missing-underscore) The name "oklchToRgb" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal
-export function oklchToRgb(oklch: OKLCH_2): RGB;
 
 // @public
 export interface PaletteData {
@@ -309,11 +303,6 @@ export function rgbToAnsi256(rgb: RGB): number;
 
 // @public
 export function rgbToHsl(rgb: RGB): HSL;
-
-// Warning: (ae-internal-missing-underscore) The name "rgbToOklch" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal
-export function rgbToOklch(rgb: RGB): OKLCH_2;
 
 // @public
 export function rotate(rgb: RGB, degrees: number): RGB;
@@ -380,7 +369,7 @@ export interface VSCodeFamilyInfo {
 
 // Warnings were encountered during analysis:
 //
-// dist/index.d.ts:1070:1 - (ae-misplaced-package-tag) The @packageDocumentation comment must appear at the top of entry point *.d.ts file
+// dist/index.d.ts:1032:1 - (ae-misplaced-package-tag) The @packageDocumentation comment must appear at the top of entry point *.d.ts file
 
 // (No @packageDocumentation comment for this package)
 

@@ -39,8 +39,8 @@ export interface OKLCH {
   l: number;
   /** Chroma: 0 (gray) to ~0.4 (highly saturated) */
   c: number;
-  /** Hue: 0-360 degrees */
-  h: number;
+  /** Hue: 0-360 degrees, or undefined for achromatic (gray) colors */
+  h: number | undefined;
 }
 
 /**

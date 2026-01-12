@@ -1,63 +1,7 @@
 import type { RGB } from '../types.js';
 import { hslToRgb, rgbToHsl } from './conversions.js';
 import { oklchToRgb, rgbToOklch } from './oklch.js';
-
-/**
- * Clamps a value between min and max.
- * @internal
- */
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
-
-/**
- * Normalizes hue to 0-360 range by wrapping.
- * @internal
- */
-function normalizeHue(hue: number): number {
-  let normalized = hue % 360;
-  if (normalized < 0) {
-    normalized += 360;
-  }
-  return normalized;
-}
-
-/**
- * Interpolates between two hue values, taking the shortest path around the color wheel.
- * @internal
- */
-function interpolateHue(
-  h1: number | undefined,
-  h2: number | undefined,
-  t: number
-): number | undefined {
-  // If both hues are undefined (achromatic colors), return undefined
-  if (h1 === undefined && h2 === undefined) {
-    return undefined;
-  }
-
-  // If only one hue is defined, use that one (achromatic to chromatic transition)
-  if (h1 === undefined) {
-    return h2;
-  }
-  if (h2 === undefined) {
-    return h1;
-  }
-
-  // Both hues are defined - interpolate using shortest path
-  let diff = h2 - h1;
-
-  // Normalize the difference to the shortest path
-  if (diff > 180) {
-    diff -= 360;
-  } else if (diff < -180) {
-    diff += 360;
-  }
-
-  // Interpolate and normalize result
-  const result = h1 + diff * t;
-  return normalizeHue(result);
-}
+import { clamp, normalizeHue, interpolateHue } from './utils.js';
 
 /**
  * Increases the saturation of a color.

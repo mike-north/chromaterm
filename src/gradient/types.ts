@@ -47,7 +47,7 @@ export interface GradientOptions {
   easing?: (t: number) => number;
 
   /**
-   * How to interpolate hue between colors in HSL space.
+   * How to interpolate hue between colors in OKLCH space.
    * Default: 'short' (shortest path around the color wheel).
    */
   hueDirection?: HueDirection;
@@ -114,7 +114,7 @@ export interface Gradient2DOptions {
   easing?: (t: number) => number;
 
   /**
-   * How to interpolate hue between colors in HSL space.
+   * How to interpolate hue between colors in OKLCH space.
    * Default: 'short' (shortest path around the color wheel).
    */
   hueDirection?: HueDirection;

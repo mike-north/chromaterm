@@ -61,9 +61,6 @@ function createTestTheme(): Theme {
   };
 }
 
-// Alias for tests that use createTestTheme()
-const _getTheme = createTestTheme;
-
 describe('createGradient', () => {
   describe('validation', () => {
     it('should throw if less than 2 stops provided', () => {
