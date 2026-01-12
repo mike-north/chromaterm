@@ -4,7 +4,7 @@
 
 ## GradientOptions.hueDirection property
 
-How to interpolate hue between colors in HSL space. Default: 'short' (shortest path around the color wheel).
+How to interpolate hue between colors in OKLCH space. Default: 'short' (shortest path around the color wheel).
 
 **Signature:**
 

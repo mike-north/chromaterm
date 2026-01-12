@@ -30,6 +30,19 @@ Converts an ANSI-256 color index to RGB.
 </td></tr>
 <tr><td>
 
+[calculateLuminance(rgb)](./chromaterm.calculateluminance.md)
+
+
+</td><td>
+
+Calculate relative luminance per WCAG 2.1.
+
+Uses sRGB to linear conversion and ITU-R BT.709 coefficients.
+
+
+</td></tr>
+<tr><td>
+
 [createGradient(stops, options)](./chromaterm.creategradient.md)
 
 
@@ -82,6 +95,47 @@ Decreases the lightness of a color.
 </td><td>
 
 Decreases the saturation of a color.
+
+
+</td></tr>
+<tr><td>
+
+[detectAppearance(options)](./chromaterm.detectappearance.md)
+
+
+</td><td>
+
+Detect the system's current appearance mode (light/dark).
+
+Detection priority: 1. Environment variable override (CHROMATERM\_APPEARANCE) 2. forceMode option 3. Platform-specific detection: - macOS: `defaults read -g AppleInterfaceStyle` - Linux/GNOME: `gsettings get org.gnome.desktop.interface color-scheme` - Linux/KDE: Parse `~/.config/kdeglobals` - Windows: Registry `HKCU\...\AppsUseLightTheme` 4. Fallback: 'unknown'
+
+
+</td></tr>
+<tr><td>
+
+[detectAppearanceSync(options)](./chromaterm.detectappearancesync.md)
+
+
+</td><td>
+
+Synchronously detect the system's current appearance mode.
+
+This is a fast path that only checks: 1. Environment variable override (CHROMATERM\_APPEARANCE) 2. macOS defaults (if on macOS)
+
+For other platforms, returns 'unknown'. Use the async `detectAppearance()` for more accurate cross-platform detection.
+
+
+</td></tr>
+<tr><td>
+
+[detectBackgroundMode(options)](./chromaterm.detectbackgroundmode.md)
+
+
+</td><td>
+
+Detect appearance mode from terminal background luminance.
+
+This is a cross-platform approach that works in any terminal that supports OSC queries. It determines light/dark based on the actual terminal background color rather than system settings.
 
 
 </td></tr>
@@ -164,6 +218,19 @@ Converts an HSL color to RGB color space.
 Interpolate between two RGB colors using OKLCH color space.
 
 This provides perceptually uniform interpolation, meaning that the visual change appears constant as t varies from 0 to 1.
+
+
+</td></tr>
+<tr><td>
+
+[isLightBackground(rgb)](./chromaterm.islightbackground.md)
+
+
+</td><td>
+
+Determine if an RGB color is "light" based on luminance.
+
+Uses WCAG-compliant luminance calculation with 0.179 threshold.
 
 
 </td></tr>
@@ -287,6 +354,21 @@ Increases the saturation of a color.
 
 
 </td></tr>
+<tr><td>
+
+[watchAppearance(options)](./chromaterm.watchappearance.md)
+
+
+</td><td>
+
+Watch for system appearance changes.
+
+Returns an EventEmitter that emits 'change' events when the system appearance mode changes. The watcher polls at regular intervals (default: 5 seconds) and automatically cleans up when: - The AbortSignal is triggered - dispose() is called - The process exits
+
+The interval is unref'd so it won't keep the Node.js process alive.
+
+
+</td></tr>
 </tbody></table>
 
 ## Interfaces
@@ -303,6 +385,39 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[AppearanceChangeEvent](./chromaterm.appearancechangeevent.md)
+
+
+</td><td>
+
+Event data emitted on appearance change.
+
+
+</td></tr>
+<tr><td>
+
+[AppearanceResult](./chromaterm.appearanceresult.md)
+
+
+</td><td>
+
+Result from appearance detection.
+
+
+</td></tr>
+<tr><td>
+
+[AppearanceWatcher](./chromaterm.appearancewatcher.md)
+
+
+</td><td>
+
+Appearance watcher interface.
+
+
+</td></tr>
+<tr><td>
 
 [Capabilities](./chromaterm.capabilities.md)
 
@@ -350,6 +465,28 @@ Text modifiers that can be applied to colored text.
 </td><td>
 
 A color transformation operation.
+
+
+</td></tr>
+<tr><td>
+
+[DetectAppearanceOptions](./chromaterm.detectappearanceoptions.md)
+
+
+</td><td>
+
+Options for appearance detection.
+
+
+</td></tr>
+<tr><td>
+
+[DetectBackgroundModeOptions](./chromaterm.detectbackgroundmodeoptions.md)
+
+
+</td><td>
+
+Options for background mode detection.
 
 
 </td></tr>
@@ -542,6 +679,17 @@ Information about a detected VS Code family editor.
 
 
 </td></tr>
+<tr><td>
+
+[WatchAppearanceOptions](./chromaterm.watchappearanceoptions.md)
+
+
+</td><td>
+
+Options for watching appearance changes.
+
+
+</td></tr>
 </tbody></table>
 
 ## Variables
@@ -665,6 +813,39 @@ ANSI color index in the standard 16-color palette (0-15).
 </td><td>
 
 ANSI color names for the standard 16-color palette.
+
+
+</td></tr>
+<tr><td>
+
+[AppearanceConfidence](./chromaterm.appearanceconfidence.md)
+
+
+</td><td>
+
+Confidence level of the detection result.
+
+
+</td></tr>
+<tr><td>
+
+[AppearanceMode](./chromaterm.appearancemode.md)
+
+
+</td><td>
+
+System appearance modes.
+
+
+</td></tr>
+<tr><td>
+
+[AppearanceSource](./chromaterm.appearancesource.md)
+
+
+</td><td>
+
+Source of appearance detection.
 
 
 </td></tr>

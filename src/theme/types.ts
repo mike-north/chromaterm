@@ -1,6 +1,7 @@
 import type { Color } from '../builder/builder.js';
 import type { Capabilities } from '../capability/types.js';
 import type { RGB } from '../types.js';
+import type { AppearanceResult, AppearanceMode } from '../appearance/types.js';
 
 /**
  * Palette data from terminal probing or config.
@@ -33,6 +34,12 @@ export interface ThemeOptions {
 
   /** Skip probing, use T1 baseline only */
   skipProbe?: boolean;
+
+  /** Include appearance detection in theme (default: false) */
+  detectAppearance?: boolean;
+
+  /** Force specific appearance mode */
+  forceAppearance?: AppearanceMode;
 }
 
 /**
@@ -150,4 +157,10 @@ export interface Theme {
    * Raw palette data if T3, null otherwise
    */
   readonly palette: PaletteData | null;
+
+  /**
+   * System appearance mode, if detected.
+   * Only available when detectTheme() is called with `detectAppearance: true`.
+   */
+  readonly appearance?: AppearanceResult;
 }

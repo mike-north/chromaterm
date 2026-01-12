@@ -37,6 +37,44 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[detectAppearance?](./chromaterm.themeoptions.detectappearance.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Include appearance detection in theme (default: false)
+
+
+</td></tr>
+<tr><td>
+
+[forceAppearance?](./chromaterm.themeoptions.forceappearance.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[AppearanceMode](./chromaterm.appearancemode.md)
+
+
+</td><td>
+
+_(Optional)_ Force specific appearance mode
+
+
+</td></tr>
+<tr><td>
+
 [forceCapability?](./chromaterm.themeoptions.forcecapability.md)
 
 

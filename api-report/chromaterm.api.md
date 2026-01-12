@@ -5,6 +5,7 @@
 ```ts
 
 import * as chalk_index_js from 'chalk/index.js';
+import { EventEmitter } from 'node:events';
 
 // @public
 export const abs: {
@@ -43,6 +44,54 @@ export type AnsiColorIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 1
 export type AnsiColorName = 'black' | 'red' | 'green' | 'yellow' | 'blue' | 'magenta' | 'cyan' | 'white' | 'brightBlack' | 'brightRed' | 'brightGreen' | 'brightYellow' | 'brightBlue' | 'brightMagenta' | 'brightCyan' | 'brightWhite';
 
 // @public
+export interface AppearanceChangeEvent {
+    currentMode: AppearanceMode;
+    previousMode: AppearanceMode | null;
+    result: AppearanceResult;
+    timestamp: Date;
+}
+
+// @public
+export type AppearanceConfidence = 'high' | 'medium' | 'low';
+
+// @public
+export type AppearanceMode = 'light' | 'dark' | 'unknown';
+
+// @public
+export interface AppearanceResult {
+    confidence: AppearanceConfidence;
+    mode: AppearanceMode;
+    source: AppearanceSource;
+}
+
+// @public
+export type AppearanceSource = 'macos' | 'gnome' | 'kde' | 'windows' | 'terminal' | 'env' | 'none';
+
+// @public
+export interface AppearanceWatcher extends EventEmitter {
+    readonly currentMode: AppearanceMode;
+    dispose(): void;
+    // (undocumented)
+    emit(event: string | symbol, ...args: unknown[]): boolean;
+    on(event: 'change', listener: (event: AppearanceChangeEvent) => void): this;
+    on(event: 'error', listener: (error: Error) => void): this;
+    on(event: 'dispose', listener: () => void): this;
+    on(event: string | symbol, listener: (...args: unknown[]) => void): this;
+    // (undocumented)
+    once(event: 'change', listener: (event: AppearanceChangeEvent) => void): this;
+    // (undocumented)
+    once(event: 'error', listener: (error: Error) => void): this;
+    // (undocumented)
+    once(event: 'dispose', listener: () => void): this;
+    // (undocumented)
+    once(event: string | symbol, listener: (...args: unknown[]) => void): this;
+    // (undocumented)
+    removeAllListeners(event?: string | symbol): this;
+    // (undocumented)
+    removeListener(event: string | symbol, listener: (...args: unknown[]) => void): this;
+}
+
+// @public
 export type BlendMode =
 /** Multiply the RGB channels of both gradients */
 'multiply'
@@ -50,6 +99,9 @@ export type BlendMode =
 | 'overlay'
 /** Average the RGB channels of both gradients */
 | 'average';
+
+// @public
+export function calculateLuminance(rgb: RGB): number;
 
 // @public
 export interface Capabilities {
@@ -131,6 +183,26 @@ export function darken(rgb: RGB, amount: number): RGB;
 
 // @public
 export function desaturate(rgb: RGB, amount: number): RGB;
+
+// @public
+export function detectAppearance(options?: DetectAppearanceOptions): Promise<AppearanceResult>;
+
+// @public
+export interface DetectAppearanceOptions {
+    forceMode?: AppearanceMode;
+    timeout?: number;
+}
+
+// @public
+export function detectAppearanceSync(options?: Pick<DetectAppearanceOptions, 'forceMode'>): AppearanceResult;
+
+// @public
+export function detectBackgroundMode(options?: DetectBackgroundModeOptions): Promise<AppearanceResult>;
+
+// @public
+export interface DetectBackgroundModeOptions {
+    timeout?: number;
+}
 
 // @public
 export function detectCapabilities(options?: DetectOptions): Capabilities;
@@ -238,6 +310,9 @@ export function isColorDisabled(): boolean;
 export function isColorForced(): boolean | number;
 
 // @public
+export function isLightBackground(rgb: RGB): boolean;
+
+// @public
 export function lighten(rgb: RGB, amount: number): RGB;
 
 // @public
@@ -315,6 +390,7 @@ export type StyleFunction = (text: string) => string;
 
 // @public
 export interface Theme {
+    readonly appearance?: AppearanceResult;
     background: Color;
     black: Color;
     blue: Color;
@@ -347,6 +423,8 @@ export type ThemeLevel = 'blind' | 'lightdark' | 'palette';
 
 // @public
 export interface ThemeOptions {
+    detectAppearance?: boolean;
+    forceAppearance?: AppearanceMode;
     forceCapability?: {
         color?: 'none' | 'ansi16' | 'ansi256' | 'truecolor';
         theme?: 'blind' | 'lightdark' | 'palette';
@@ -367,9 +445,19 @@ export interface VSCodeFamilyInfo {
     editor: VSCodeEditor;
 }
 
+// @public
+export function watchAppearance(options?: WatchAppearanceOptions): AppearanceWatcher;
+
+// @public
+export interface WatchAppearanceOptions {
+    pollInterval?: number;
+    signal?: globalThis.AbortSignal;
+    timeout?: number;
+}
+
 // Warnings were encountered during analysis:
 //
-// dist/index.d.ts:1032:1 - (ae-misplaced-package-tag) The @packageDocumentation comment must appear at the top of entry point *.d.ts file
+// dist/index.d.ts:1280:1 - (ae-misplaced-package-tag) The @packageDocumentation comment must appear at the top of entry point *.d.ts file
 
 // (No @packageDocumentation comment for this package)
 

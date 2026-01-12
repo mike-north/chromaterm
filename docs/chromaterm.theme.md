@@ -37,6 +37,27 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[appearance?](./chromaterm.theme.appearance.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+[AppearanceResult](./chromaterm.appearanceresult.md)
+
+
+</td><td>
+
+_(Optional)_ System appearance mode, if detected. Only available when detectTheme() is called with `detectAppearance: true`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [background](./chromaterm.theme.background.md)
 
 

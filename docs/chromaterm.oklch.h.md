@@ -4,10 +4,10 @@
 
 ## OKLCH.h property
 
-Hue: 0-360 degrees
+Hue: 0-360 degrees, or undefined for achromatic (gray) colors
 
 **Signature:**
 
 ```typescript
-h: number;
+h: number | undefined;
 ```

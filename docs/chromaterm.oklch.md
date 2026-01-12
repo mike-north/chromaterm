@@ -11,7 +11,7 @@ OKLCH is a perceptually uniform color space that's particularly useful for color
 **Signature:**
 
 ```typescript
-interface OKLCH$1 
+interface OKLCH 
 ```
 
 ## Properties
@@ -66,12 +66,12 @@ Chroma: 0 (gray) to \~0.4 (highly saturated)
 
 </td><td>
 
-number
+number \| undefined
 
 
 </td><td>
 
-Hue: 0-360 degrees
+Hue: 0-360 degrees, or undefined for achromatic (gray) colors
 
 
 </td></tr>

@@ -18,6 +18,7 @@ export * from './builder/index.js';
 export * from './theme/index.js';
 export * from './probe/index.js';
 export * from './config/index.js';
+export * from './appearance/index.js';
 
 // Absolute colors and direct ANSI access
 export { abs, ansi } from './abs/index.js';

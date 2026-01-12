@@ -88,7 +88,7 @@ _(Optional)_ Easing function applied to both X and Y axes before color interpola
 
 </td><td>
 
-_(Optional)_ How to interpolate hue between colors in HSL space. Default: 'short' (shortest path around the color wheel).
+_(Optional)_ How to interpolate hue between colors in OKLCH space. Default: 'short' (shortest path around the color wheel).
 
 
 </td></tr>
