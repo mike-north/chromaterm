@@ -5,6 +5,7 @@
 ```ts
 
 import * as chalk_index_js from 'chalk/index.js';
+import { EventEmitter } from 'node:events';
 
 // @public
 export const abs: {
@@ -43,13 +44,55 @@ export type AnsiColorIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 1
 export type AnsiColorName = 'black' | 'red' | 'green' | 'yellow' | 'blue' | 'magenta' | 'cyan' | 'white' | 'brightBlack' | 'brightRed' | 'brightGreen' | 'brightYellow' | 'brightBlue' | 'brightMagenta' | 'brightCyan' | 'brightWhite';
 
 // @public
-export type BlendMode =
-/** Multiply the RGB channels of both gradients */
-'multiply'
-/** Apply overlay blend mode (combination of multiply and screen) */
-| 'overlay'
-/** Average the RGB channels of both gradients */
-| 'average';
+export interface AppearanceChangeEvent {
+    currentMode: AppearanceMode;
+    previousMode: AppearanceMode | null;
+    result: AppearanceResult;
+    timestamp: Date;
+}
+
+// @public
+export type AppearanceConfidence = 'high' | 'medium' | 'low';
+
+// @public
+export type AppearanceMode = 'light' | 'dark' | 'unknown';
+
+// @public
+export interface AppearanceResult {
+    confidence: AppearanceConfidence;
+    mode: AppearanceMode;
+    source: AppearanceSource;
+}
+
+// @public
+export type AppearanceSource = 'macos' | 'gnome' | 'kde' | 'windows' | 'terminal' | 'env' | 'none';
+
+// @public
+export interface AppearanceWatcher extends EventEmitter {
+    readonly currentMode: AppearanceMode;
+    dispose(): void;
+    // (undocumented)
+    emit(event: string | symbol, ...args: unknown[]): boolean;
+    on(event: 'change', listener: (event: AppearanceChangeEvent) => void): this;
+    on(event: 'error', listener: (error: Error) => void): this;
+    on(event: 'dispose', listener: () => void): this;
+    on(event: string | symbol, listener: (...args: unknown[]) => void): this;
+    // (undocumented)
+    once(event: 'change', listener: (event: AppearanceChangeEvent) => void): this;
+    // (undocumented)
+    once(event: 'error', listener: (error: Error) => void): this;
+    // (undocumented)
+    once(event: 'dispose', listener: () => void): this;
+    // (undocumented)
+    once(event: string | symbol, listener: (...args: unknown[]) => void): this;
+    // (undocumented)
+    removeAllListeners(event?: string | symbol): this;
+    // (undocumented)
+    removeListener(event: string | symbol, listener: (...args: unknown[]) => void): this;
+}
+
+// @public
+export function calculateLuminance(rgb: RGB): number;
 
 // @public
 export interface Capabilities {
@@ -118,12 +161,6 @@ export interface ColorTransform {
 export function createColor(state: ColorState): Color;
 
 // @public
-export function createGradient(stops: GradientStop[], options?: GradientOptions): Gradient;
-
-// @public
-export function createGradient2D(input: Gradient2DInput, options?: Gradient2DOptions): Gradient2D;
-
-// @public
 export function createT1Theme(options?: DetectOptions): Theme;
 
 // @public
@@ -131,6 +168,26 @@ export function darken(rgb: RGB, amount: number): RGB;
 
 // @public
 export function desaturate(rgb: RGB, amount: number): RGB;
+
+// @public
+export function detectAppearance(options?: DetectAppearanceOptions): Promise<AppearanceResult>;
+
+// @public
+export interface DetectAppearanceOptions {
+    forceMode?: AppearanceMode;
+    timeout?: number;
+}
+
+// @public
+export function detectAppearanceSync(options?: Pick<DetectAppearanceOptions, 'forceMode'>): AppearanceResult;
+
+// @public
+export function detectBackgroundMode(options?: DetectBackgroundModeOptions): Promise<AppearanceResult>;
+
+// @public
+export interface DetectBackgroundModeOptions {
+    timeout?: number;
+}
 
 // @public
 export function detectCapabilities(options?: DetectOptions): Capabilities;
@@ -160,50 +217,6 @@ export function fade(rgb: RGB, target: RGB, amount: number): RGB;
 export const FALLBACK_PALETTE: Record<AnsiColorName, RGB>;
 
 // @public
-export interface Gradient {
-    at(position: number): Color;
-    readonly loop: boolean;
-    readonly stops: readonly GradientStop[];
-}
-
-// @public
-export interface Gradient2D {
-    at(x: number, y: number): Color;
-    readonly xGradient: Gradient;
-    readonly yGradient: Gradient;
-}
-
-// @public
-export interface Gradient2DInput {
-    x: GradientStop[];
-    y: GradientStop[];
-}
-
-// @public
-export interface Gradient2DOptions {
-    blendMode?: BlendMode;
-    easing?: (t: number) => number;
-    hueDirection?: HueDirection;
-    loop?: {
-        x?: boolean;
-        y?: boolean;
-    };
-}
-
-// @public
-export interface GradientOptions {
-    easing?: (t: number) => number;
-    hueDirection?: HueDirection;
-    loop?: boolean;
-}
-
-// @public
-export interface GradientStop {
-    color: Color;
-    position: number;
-}
-
-// @public
 export interface HSL {
     h: number;
     l: number;
@@ -212,20 +225,6 @@ export interface HSL {
 
 // @public
 export function hslToRgb(hsl: HSL): RGB;
-
-// @public
-export type HueDirection =
-/** Take the shortest path around the color wheel */
-'short'
-/** Take the longest path around the color wheel */
-| 'long'
-/** Always increase hue values (may wrap from 360 to 0) */
-| 'increasing'
-/** Always decrease hue values (may wrap from 0 to 360) */
-| 'decreasing';
-
-// @public
-export function interpolateOklch(color1: RGB, color2: RGB, t: number, hueDirection?: HueDirection): RGB;
 
 // Warning: (ae-internal-missing-underscore) The name "isColorDisabled" should be prefixed with an underscore because the declaration is marked as @internal
 //
@@ -238,14 +237,10 @@ export function isColorDisabled(): boolean;
 export function isColorForced(): boolean | number;
 
 // @public
-export function lighten(rgb: RGB, amount: number): RGB;
+export function isLightBackground(rgb: RGB): boolean;
 
 // @public
-export interface OKLCH {
-    c: number;
-    h: number | undefined;
-    l: number;
-}
+export function lighten(rgb: RGB, amount: number): RGB;
 
 // @public
 export interface PaletteData {
@@ -315,6 +310,7 @@ export type StyleFunction = (text: string) => string;
 
 // @public
 export interface Theme {
+    readonly appearance?: AppearanceResult;
     background: Color;
     black: Color;
     blue: Color;
@@ -347,6 +343,8 @@ export type ThemeLevel = 'blind' | 'lightdark' | 'palette';
 
 // @public
 export interface ThemeOptions {
+    detectAppearance?: boolean;
+    forceAppearance?: AppearanceMode;
     forceCapability?: {
         color?: 'none' | 'ansi16' | 'ansi256' | 'truecolor';
         theme?: 'blind' | 'lightdark' | 'palette';
@@ -367,9 +365,19 @@ export interface VSCodeFamilyInfo {
     editor: VSCodeEditor;
 }
 
+// @public
+export function watchAppearance(options?: WatchAppearanceOptions): AppearanceWatcher;
+
+// @public
+export interface WatchAppearanceOptions {
+    pollInterval?: number;
+    signal?: globalThis.AbortSignal;
+    timeout?: number;
+}
+
 // Warnings were encountered during analysis:
 //
-// dist/index.d.ts:1032:1 - (ae-misplaced-package-tag) The @packageDocumentation comment must appear at the top of entry point *.d.ts file
+// dist/index.d.ts:1030:1 - (ae-misplaced-package-tag) The @packageDocumentation comment must appear at the top of entry point *.d.ts file
 
 // (No @packageDocumentation comment for this package)
 

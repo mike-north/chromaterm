@@ -4,11 +4,9 @@
 
 ## fade() function
 
-Fades (blends) a color toward a target color using OKLCH interpolation.
+Fades (blends) a color toward a target color.
 
-This creates an opacity effect by interpolating between the source color and the target color in the perceptually uniform OKLCH color space. At amount=0, the result is the source color. At amount=1, the result is the target color.
-
-OKLCH interpolation provides smoother, more natural color transitions compared to naive RGB interpolation, avoiding muddy intermediate colors.
+This creates an opacity effect by linearly interpolating between the source color and the target color. At amount=0, the result is the source color. At amount=1, the result is the target color.
 
 Use this to create semi-transparent text effects by blending the text color toward the background.
 

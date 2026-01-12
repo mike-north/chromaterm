@@ -30,23 +30,14 @@ Converts an ANSI-256 color index to RGB.
 </td></tr>
 <tr><td>
 
-[createGradient(stops, options)](./chromaterm.creategradient.md)
+[calculateLuminance(rgb)](./chromaterm.calculateluminance.md)
 
 
 </td><td>
 
-Create a 1D gradient from an array of gradient stops.
+Calculate relative luminance per WCAG 2.1.
 
-
-</td></tr>
-<tr><td>
-
-[createGradient2D(input, options)](./chromaterm.creategradient2d.md)
-
-
-</td><td>
-
-Create a 2D gradient from X and Y axis gradient stops.
+Uses sRGB to linear conversion and ITU-R BT.709 coefficients.
 
 
 </td></tr>
@@ -82,6 +73,47 @@ Decreases the lightness of a color.
 </td><td>
 
 Decreases the saturation of a color.
+
+
+</td></tr>
+<tr><td>
+
+[detectAppearance(options)](./chromaterm.detectappearance.md)
+
+
+</td><td>
+
+Detect the system's current appearance mode (light/dark).
+
+Detection priority: 1. Environment variable override (CHROMATERM\_APPEARANCE) 2. forceMode option 3. Platform-specific detection: - macOS: `defaults read -g AppleInterfaceStyle` - Linux/GNOME: `gsettings get org.gnome.desktop.interface color-scheme` - Linux/KDE: Parse `~/.config/kdeglobals` - Windows: Registry `HKCU\...\AppsUseLightTheme` 4. Fallback: 'unknown'
+
+
+</td></tr>
+<tr><td>
+
+[detectAppearanceSync(options)](./chromaterm.detectappearancesync.md)
+
+
+</td><td>
+
+Synchronously detect the system's current appearance mode.
+
+This is a fast path that only checks: 1. Environment variable override (CHROMATERM\_APPEARANCE) 2. macOS defaults (if on macOS)
+
+For other platforms, returns 'unknown'. Use the async `detectAppearance()` for more accurate cross-platform detection.
+
+
+</td></tr>
+<tr><td>
+
+[detectBackgroundMode(options)](./chromaterm.detectbackgroundmode.md)
+
+
+</td><td>
+
+Detect appearance mode from terminal background luminance.
+
+This is a cross-platform approach that works in any terminal that supports OSC queries. It determines light/dark based on the actual terminal background color rather than system settings.
 
 
 </td></tr>
@@ -133,11 +165,9 @@ Detects VS Code, Cursor, and Windsurf terminals by examining environment variabl
 
 </td><td>
 
-Fades (blends) a color toward a target color using OKLCH interpolation.
+Fades (blends) a color toward a target color.
 
-This creates an opacity effect by interpolating between the source color and the target color in the perceptually uniform OKLCH color space. At amount=0, the result is the source color. At amount=1, the result is the target color.
-
-OKLCH interpolation provides smoother, more natural color transitions compared to naive RGB interpolation, avoiding muddy intermediate colors.
+This creates an opacity effect by linearly interpolating between the source color and the target color. At amount=0, the result is the source color. At amount=1, the result is the target color.
 
 Use this to create semi-transparent text effects by blending the text color toward the background.
 
@@ -156,14 +186,14 @@ Converts an HSL color to RGB color space.
 </td></tr>
 <tr><td>
 
-[interpolateOklch(color1, color2, t, hueDirection)](./chromaterm.interpolateoklch.md)
+[isLightBackground(rgb)](./chromaterm.islightbackground.md)
 
 
 </td><td>
 
-Interpolate between two RGB colors using OKLCH color space.
+Determine if an RGB color is "light" based on luminance.
 
-This provides perceptually uniform interpolation, meaning that the visual change appears constant as t varies from 0 to 1.
+Uses WCAG-compliant luminance calculation with 0.179 threshold.
 
 
 </td></tr>
@@ -287,6 +317,21 @@ Increases the saturation of a color.
 
 
 </td></tr>
+<tr><td>
+
+[watchAppearance(options)](./chromaterm.watchappearance.md)
+
+
+</td><td>
+
+Watch for system appearance changes.
+
+Returns an EventEmitter that emits 'change' events when the system appearance mode changes. The watcher polls at regular intervals (default: 5 seconds) and automatically cleans up when: - The AbortSignal is triggered - dispose() is called - The process exits
+
+The interval is unref'd so it won't keep the Node.js process alive.
+
+
+</td></tr>
 </tbody></table>
 
 ## Interfaces
@@ -303,6 +348,39 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[AppearanceChangeEvent](./chromaterm.appearancechangeevent.md)
+
+
+</td><td>
+
+Event data emitted on appearance change.
+
+
+</td></tr>
+<tr><td>
+
+[AppearanceResult](./chromaterm.appearanceresult.md)
+
+
+</td><td>
+
+Result from appearance detection.
+
+
+</td></tr>
+<tr><td>
+
+[AppearanceWatcher](./chromaterm.appearancewatcher.md)
+
+
+</td><td>
+
+Appearance watcher interface.
+
+
+</td></tr>
+<tr><td>
 
 [Capabilities](./chromaterm.capabilities.md)
 
@@ -355,6 +433,28 @@ A color transformation operation.
 </td></tr>
 <tr><td>
 
+[DetectAppearanceOptions](./chromaterm.detectappearanceoptions.md)
+
+
+</td><td>
+
+Options for appearance detection.
+
+
+</td></tr>
+<tr><td>
+
+[DetectBackgroundModeOptions](./chromaterm.detectbackgroundmodeoptions.md)
+
+
+</td><td>
+
+Options for background mode detection.
+
+
+</td></tr>
+<tr><td>
+
 [DetectOptions](./chromaterm.detectoptions.md)
 
 
@@ -366,91 +466,12 @@ Options for capability detection.
 </td></tr>
 <tr><td>
 
-[Gradient](./chromaterm.gradient.md)
-
-
-</td><td>
-
-A 1D gradient that can be sampled at any position.
-
-
-</td></tr>
-<tr><td>
-
-[Gradient2D](./chromaterm.gradient2d.md)
-
-
-</td><td>
-
-A 2D gradient that can be sampled at any (x, y) coordinate.
-
-
-</td></tr>
-<tr><td>
-
-[Gradient2DInput](./chromaterm.gradient2dinput.md)
-
-
-</td><td>
-
-Input for creating a 2D gradient.
-
-
-</td></tr>
-<tr><td>
-
-[Gradient2DOptions](./chromaterm.gradient2doptions.md)
-
-
-</td><td>
-
-Options for creating a 2D gradient.
-
-
-</td></tr>
-<tr><td>
-
-[GradientOptions](./chromaterm.gradientoptions.md)
-
-
-</td><td>
-
-Options for creating a gradient.
-
-
-</td></tr>
-<tr><td>
-
-[GradientStop](./chromaterm.gradientstop.md)
-
-
-</td><td>
-
-A stop in a gradient, defining a color at a specific position.
-
-
-</td></tr>
-<tr><td>
-
 [HSL](./chromaterm.hsl.md)
 
 
 </td><td>
 
 HSL color representation.
-
-
-</td></tr>
-<tr><td>
-
-[OKLCH](./chromaterm.oklch.md)
-
-
-</td><td>
-
-OKLCH color representation using the OKLCH color space.
-
-OKLCH is a perceptually uniform color space that's particularly useful for color interpolation and gradient generation.
 
 
 </td></tr>
@@ -539,6 +560,17 @@ Options for theme creation.
 </td><td>
 
 Information about a detected VS Code family editor.
+
+
+</td></tr>
+<tr><td>
+
+[WatchAppearanceOptions](./chromaterm.watchappearanceoptions.md)
+
+
+</td><td>
+
+Options for watching appearance changes.
 
 
 </td></tr>
@@ -670,12 +702,34 @@ ANSI color names for the standard 16-color palette.
 </td></tr>
 <tr><td>
 
-[BlendMode](./chromaterm.blendmode.md)
+[AppearanceConfidence](./chromaterm.appearanceconfidence.md)
 
 
 </td><td>
 
-Blend mode for combining X and Y gradients in 2D space.
+Confidence level of the detection result.
+
+
+</td></tr>
+<tr><td>
+
+[AppearanceMode](./chromaterm.appearancemode.md)
+
+
+</td><td>
+
+System appearance modes.
+
+
+</td></tr>
+<tr><td>
+
+[AppearanceSource](./chromaterm.appearancesource.md)
+
+
+</td><td>
+
+Source of appearance detection.
 
 
 </td></tr>
@@ -687,17 +741,6 @@ Blend mode for combining X and Y gradients in 2D space.
 </td><td>
 
 Color capability levels supported by the terminal.
-
-
-</td></tr>
-<tr><td>
-
-[HueDirection](./chromaterm.huedirection.md)
-
-
-</td><td>
-
-Controls how hue interpolation traverses the color wheel.
 
 
 </td></tr>
