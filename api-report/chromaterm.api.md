@@ -84,11 +84,29 @@ export interface ColorModifiers {
     underline?: boolean;
 }
 
+// Warning: (ae-internal-missing-underscore) The name "ColorState" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export interface ColorState {
+    ansiIndex: AnsiColorIndex;
+    background: ColorState | null;
+    baseRgb: RGB | null;
+    capabilities: Capabilities;
+    modifiers: ColorModifiers;
+    terminalBackground: RGB | null;
+    transforms: ColorTransform[];
+}
+
 // @public
 export interface ColorTransform {
     amount: number;
     type: 'saturate' | 'desaturate' | 'lighten' | 'darken' | 'rotate' | 'fade';
 }
+
+// Warning: (ae-internal-missing-underscore) The name "createColor" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function createColor(state: ColorState): Color;
 
 // @public
 export function createT1Theme(options?: DetectOptions): Theme;
@@ -104,6 +122,11 @@ export function desaturate(rgb: RGB, amount: number): RGB;
 
 // @public
 export function detectCapabilities(options?: DetectOptions): Capabilities;
+
+// Warning: (ae-internal-missing-underscore) The name "detectColorLevel" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function detectColorLevel(options?: DetectOptions): ColorLevel;
 
 // @public
 export interface DetectOptions {
@@ -130,6 +153,16 @@ export interface HSL {
 
 // @public
 export function hslToRgb(hsl: HSL): RGB;
+
+// Warning: (ae-internal-missing-underscore) The name "isColorDisabled" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function isColorDisabled(): boolean;
+
+// Warning: (ae-internal-missing-underscore) The name "isColorForced" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function isColorForced(): boolean | number;
 
 // @public
 export function lighten(rgb: RGB, amount: number): RGB;
@@ -253,6 +286,10 @@ export interface VSCodeFamilyInfo {
     configDir: string;
     editor: VSCodeEditor;
 }
+
+// Warnings were encountered during analysis:
+//
+// dist/index.d.ts:782:1 - (ae-misplaced-package-tag) The @packageDocumentation comment must appear at the top of entry point *.d.ts file
 
 // (No @packageDocumentation comment for this package)
 
