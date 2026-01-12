@@ -3,14 +3,14 @@
 **Terminal colors that adapt to your user's color scheme.**
 
 <p align="center">
-  <img src="demo/vhs/dracula.gif" width="280" alt="Dracula theme">
-  <img src="demo/vhs/solarized-light.gif" width="280" alt="Solarized Light theme">
-  <img src="demo/vhs/monokai.gif" width="280" alt="Monokai theme">
+  <img src="./demo/vhs/dracula.gif" width="280" alt="Dracula theme">
+  <img src="./demo/vhs/solarized-light.gif" width="280" alt="Solarized Light theme">
+  <img src="./demo/vhs/monokai.gif" width="280" alt="Monokai theme">
 </p>
 <p align="center">
-  <img src="demo/vhs/one-dark.gif" width="280" alt="One Dark theme">
-  <img src="demo/vhs/rose-pine.gif" width="280" alt="Rose Pine theme">
-  <img src="demo/vhs/retro.gif" width="280" alt="Retro theme">
+  <img src="./demo/vhs/one-dark.gif" width="280" alt="One Dark theme">
+  <img src="./demo/vhs/rose-pine.gif" width="280" alt="Rose Pine theme">
+  <img src="./demo/vhs/retro.gif" width="280" alt="Retro theme">
 </p>
 
 <p align="center"><em>Same code, different themes — colors that harmonize with your user's terminal.</em></p>
