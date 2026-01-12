@@ -3,7 +3,7 @@ import type { Theme, ThemeOptions, PaletteData } from '../src/theme/types.js';
 import type { Color } from '../src/builder/builder.js';
 import type { Capabilities } from '../src/capability/types.js';
 import type { RGB } from '../src/types.js';
-import { createTheme, createT1Theme } from '../src/theme/theme.js';
+import { detectTheme, createT1Theme } from '../src/theme/theme.js';
 
 // Test Theme interface
 declare const theme: Theme;
@@ -96,14 +96,14 @@ const _incompletePalette2: PaletteData = {
   foreground: { r: 255, g: 255, b: 255 },
 };
 
-// Test createTheme function
-expectType<Promise<Theme>>(createTheme());
-expectType<Promise<Theme>>(createTheme({}));
-expectType<Promise<Theme>>(createTheme({ skipProbe: true }));
-expectType<Promise<Theme>>(createTheme({ forceCapability: { color: 'truecolor' } }));
+// Test detectTheme function
+expectType<Promise<Theme>>(detectTheme());
+expectType<Promise<Theme>>(detectTheme({}));
+expectType<Promise<Theme>>(detectTheme({ skipProbe: true }));
+expectType<Promise<Theme>>(detectTheme({ forceCapability: { color: 'truecolor' } }));
 
-// createTheme should accept ThemeOptions
-expectType<Promise<Theme>>(createTheme(options));
+// detectTheme should accept ThemeOptions
+expectType<Promise<Theme>>(detectTheme(options));
 
 // Test createT1Theme function
 expectType<Theme>(createT1Theme());
@@ -138,9 +138,9 @@ if (theme.palette === null) {
   expectType<Map<number, RGB>>(theme.palette.colors);
 }
 
-// Test that async createTheme can be awaited
+// Test that async detectTheme can be awaited
 async function _testAsync(): Promise<void> {
-  const asyncTheme = await createTheme();
+  const asyncTheme = await detectTheme();
   expectType<Theme>(asyncTheme);
   expectType<Color>(asyncTheme.red);
 }

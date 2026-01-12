@@ -17,9 +17,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const distPath = join(__dirname, '..', 'dist', 'index.js');
 
-const { createTheme } = (await import(distPath)) as typeof import('../dist/index.js');
+const { detectTheme } = (await import(distPath)) as typeof import('../dist/index.js');
 
-const theme = await createTheme();
+const theme = await detectTheme();
 
 // Banner ASCII art
 const banner = [

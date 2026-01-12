@@ -5,4 +5,4 @@
  */
 
 export type { Theme, ThemeOptions, PaletteData } from './types.js';
-export { createTheme, createT1Theme } from './theme.js';
+export { detectTheme, createT1Theme } from './theme.js';

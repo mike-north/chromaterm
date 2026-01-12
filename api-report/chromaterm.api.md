@@ -112,9 +112,6 @@ export function createColor(state: ColorState): Color;
 export function createT1Theme(options?: DetectOptions): Theme;
 
 // @public
-export function createTheme(options?: ThemeOptions): Promise<Theme>;
-
-// @public
 export function darken(rgb: RGB, amount: number): RGB;
 
 // @public
@@ -134,6 +131,9 @@ export interface DetectOptions {
     forceTheme?: ThemeLevel;
     isTTY?: boolean;
 }
+
+// @public
+export function detectTheme(options?: ThemeOptions): Promise<Theme>;
 
 // @public
 export function detectVSCodeFamily(): VSCodeFamilyInfo | null;

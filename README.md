@@ -18,9 +18,9 @@
 ChromaTerm is a Node.js library that expresses colors as transformations of the user's terminal palette. Instead of hardcoding RGB values that clash with carefully chosen themes, your colors harmonize with whatever palette the terminal is using.
 
 ```typescript
-import { createTheme } from 'chromaterm';
+import { detectTheme } from 'chromaterm';
 
-const theme = await createTheme();
+const theme = await detectTheme();
 
 // These colors adapt to the user's terminal theme
 console.log(theme.red('Error: something went wrong'));
@@ -63,11 +63,11 @@ yarn add chromaterm
 ## Quick Start
 
 ```typescript
-import { createTheme } from 'chromaterm';
+import { detectTheme } from 'chromaterm';
 
 async function main() {
   // Create a theme (auto-detects terminal capabilities)
-  const theme = await createTheme();
+  const theme = await detectTheme();
 
   // Use the 16 standard ANSI colors
   console.log(theme.red('Red text'));
@@ -127,7 +127,7 @@ ChromaTerm operates at different capability levels depending on what the termina
 ChromaTerm automatically detects the highest capability level available:
 
 ```typescript
-const theme = await createTheme();
+const theme = await detectTheme();
 console.log(theme.capabilities);
 // { color: 'truecolor', theme: 'palette', isTTY: true }
 ```
@@ -207,7 +207,7 @@ theme.red.rgb; // [205, 49, 49] or null
 ### Theme Creation Options
 
 ```typescript
-const theme = await createTheme({
+const theme = await detectTheme({
   // Skip probing, use T1 baseline only
   skipProbe: true,
 
@@ -238,9 +238,9 @@ const theme = createT1Theme();
 When you need exact colors that don't adapt (brand colors, specific design tokens), use the `abs` export for truly absolute RGB/hex colors:
 
 ```typescript
-import { createTheme, abs } from 'chromaterm';
+import { detectTheme, abs } from 'chromaterm';
 
-const theme = await createTheme();
+const theme = await detectTheme();
 
 // Theme-relative: adapts to user's palette
 console.log(theme.red('This matches their terminal red'));

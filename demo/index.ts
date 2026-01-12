@@ -14,7 +14,7 @@ const __dirname = dirname(__filename);
 const distPath = join(__dirname, '..', 'dist', 'index.js');
 
 // Dynamic import to handle path resolution
-const { createTheme, abs } = (await import(distPath)) as typeof import('../dist/index.js');
+const { detectTheme, abs } = (await import(distPath)) as typeof import('../dist/index.js');
 import type { Theme } from '../dist/index.js';
 
 // ANSI codes for clearing/positioning
@@ -278,9 +278,9 @@ function printCodeExamples(theme: Theme): void {
   console.log(header('CODE EXAMPLES'));
 
   console.log('  Basic usage:\n');
-  console.log(theme.muted("    import { createTheme } from 'chromaterm';"));
+  console.log(theme.muted("    import { detectTheme } from 'chromaterm';"));
   console.log(theme.muted(''));
-  console.log(theme.muted('    const theme = await createTheme();'));
+  console.log(theme.muted('    const theme = await detectTheme();'));
   console.log(theme.muted("    console.log(theme.red('Hello!'));"));
 
   console.log('\n  With transforms:\n');
@@ -367,7 +367,7 @@ async function main(): Promise<void> {
   // Create theme with probing
   console.log('  Detecting terminal capabilities...\n');
 
-  const theme = await createTheme();
+  const theme = await detectTheme();
 
   // Run all demo sections
   printCapabilities(theme);
@@ -383,7 +383,7 @@ async function main(): Promise<void> {
   console.log(header('TRY IT YOURSELF'));
   console.log('  Edit demo/playground.ts and run: pnpm demo:play\n');
   console.log('  Or import ChromaTerm in your own project:\n');
-  console.log(theme.muted("    import { createTheme } from 'chromaterm';\n"));
+  console.log(theme.muted("    import { detectTheme } from 'chromaterm';\n"));
 
   console.log(RESET);
 }

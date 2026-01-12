@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { createTheme } from '../src/theme/index.js';
+import { detectTheme } from '../src/theme/index.js';
 import {
   basicColorsScenario,
   transformsScenario,
@@ -13,7 +13,7 @@ async function main(): Promise<void> {
   console.log('=====================\n');
 
   // Detect and display capabilities
-  const theme = await createTheme();
+  const theme = await detectTheme();
   console.log('Terminal Capabilities:');
   console.log(`  Color Level: ${theme.capabilities.color}`);
   console.log(`  Theme Level: ${theme.capabilities.theme}`);

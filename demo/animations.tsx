@@ -17,11 +17,11 @@ const __dirname = dirname(__filename);
 const distPath = join(__dirname, '..', 'dist', 'index.js');
 
 // Dynamic import for ChromaTerm
-const { createTheme } = (await import(distPath)) as typeof import('../dist/index.js');
+const { detectTheme } = (await import(distPath)) as typeof import('../dist/index.js');
 import type { Theme, Color } from '../dist/index.js';
 
 // Initialize theme
-const theme = await createTheme();
+const theme = await detectTheme();
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Animation Components

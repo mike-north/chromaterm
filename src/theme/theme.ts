@@ -9,7 +9,7 @@ import type { Capabilities } from '../capability/types.js';
 import type { DetectOptions } from '../capability/types.js';
 
 /**
- * Create a theme by detecting the terminal's color palette.
+ * Detect the terminal's color palette and create a theme.
  *
  * Detection strategy:
  * 1. Check for VS Code family config (fast, ~5ms)
@@ -21,7 +21,7 @@ import type { DetectOptions } from '../capability/types.js';
  *
  * @public
  */
-export async function createTheme(options: ThemeOptions = {}): Promise<Theme> {
+export async function detectTheme(options: ThemeOptions = {}): Promise<Theme> {
   const { probeTimeout = 100, forceCapability, skipProbe = false } = options;
 
   // Detect base capabilities

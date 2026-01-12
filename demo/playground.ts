@@ -16,10 +16,10 @@ const __dirname = dirname(__filename);
 const distPath = join(__dirname, '..', 'dist', 'index.js');
 
 // Dynamic import to handle path resolution
-const { createTheme, abs } = (await import(distPath)) as typeof import('../dist/index.js');
+const { detectTheme, abs } = (await import(distPath)) as typeof import('../dist/index.js');
 
 async function playground(): Promise<void> {
-  const theme = await createTheme();
+  const theme = await detectTheme();
 
   console.log('\n🎨 ChromaTerm Playground\n');
   console.log('Edit demo/playground.ts and re-run to experiment!\n');

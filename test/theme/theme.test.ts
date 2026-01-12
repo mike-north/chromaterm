@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { createTheme, createT1Theme } from '../../src/theme/theme.js';
+import { detectTheme, createT1Theme } from '../../src/theme/theme.js';
 
-describe('createTheme', () => {
+describe('detectTheme', () => {
   it('should return a theme with all color properties', async () => {
-    const theme = await createTheme({ skipProbe: true });
+    const theme = await detectTheme({ skipProbe: true });
 
     // Standard colors
     expect(theme.black).toBeDefined();
@@ -42,14 +42,14 @@ describe('createTheme', () => {
   });
 
   it('should return T1 when skipProbe is true', async () => {
-    const theme = await createTheme({ skipProbe: true });
+    const theme = await detectTheme({ skipProbe: true });
 
     expect(theme.capabilities.theme).toBe('blind');
     expect(theme.palette).toBeNull();
   });
 
   it('should have null baseRgb for colors at T1', async () => {
-    const theme = await createTheme({ skipProbe: true });
+    const theme = await detectTheme({ skipProbe: true });
 
     // Color.rgb should be null when baseRgb is null
     expect(theme.red.rgb).toBeNull();
@@ -57,7 +57,7 @@ describe('createTheme', () => {
   });
 
   it('should respect forceCapability.theme option', async () => {
-    const theme = await createTheme({
+    const theme = await detectTheme({
       skipProbe: true,
       forceCapability: { theme: 'palette' },
     });
@@ -67,7 +67,7 @@ describe('createTheme', () => {
   });
 
   it('should respect forceCapability.color option', async () => {
-    const theme = await createTheme({
+    const theme = await detectTheme({
       skipProbe: true,
       forceCapability: { color: 'ansi256' },
     });
@@ -77,17 +77,17 @@ describe('createTheme', () => {
 
   it('should set default probeTimeout of 100ms', async () => {
     // Just verify it doesn't throw - we can't easily test the timeout value
-    const theme = await createTheme({ skipProbe: true });
+    const theme = await detectTheme({ skipProbe: true });
     expect(theme).toBeDefined();
   });
 
   it('should allow custom probeTimeout', async () => {
-    const theme = await createTheme({ skipProbe: true, probeTimeout: 200 });
+    const theme = await detectTheme({ skipProbe: true, probeTimeout: 200 });
     expect(theme).toBeDefined();
   });
 
   it('should be callable to colorize text', async () => {
-    const theme = await createTheme({ skipProbe: true });
+    const theme = await detectTheme({ skipProbe: true });
 
     const result = theme.red('test');
     expect(typeof result).toBe('string');
@@ -95,7 +95,7 @@ describe('createTheme', () => {
   });
 
   it('should support method chaining on colors', async () => {
-    const theme = await createTheme({ skipProbe: true });
+    const theme = await detectTheme({ skipProbe: true });
 
     const color = theme.red.bold().saturate(0.5);
     expect(color).toBeDefined();
@@ -172,7 +172,7 @@ describe('Theme with palette (T3)', () => {
   it('should have palette data when forced to T3', async () => {
     // When forcing palette capability without skipProbe, it will try to detect
     // In a test environment without TTY, it should still respect the force
-    const theme = await createTheme({
+    const theme = await detectTheme({
       skipProbe: true,
       forceCapability: { theme: 'palette' },
     });
@@ -185,7 +185,7 @@ describe('Theme with palette (T3)', () => {
 
 describe('Color introspection', () => {
   it('should expose ansi property', async () => {
-    const theme = await createTheme({ skipProbe: true });
+    const theme = await detectTheme({ skipProbe: true });
 
     expect(theme.red.ansi).toBe(1);
     expect(theme.green.ansi).toBe(2);
@@ -194,7 +194,7 @@ describe('Color introspection', () => {
   });
 
   it('should expose rgb property as null at T1', async () => {
-    const theme = await createTheme({ skipProbe: true });
+    const theme = await detectTheme({ skipProbe: true });
 
     expect(theme.red.rgb).toBeNull();
   });
