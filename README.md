@@ -329,7 +329,7 @@ See the library in action:
 
 ```bash
 # Clone the repo
-git clone https://github.com/anthropics/chromaterm.git
+git clone https://github.com/mike-north/chromaterm.git
 cd chromaterm
 
 # Install dependencies
