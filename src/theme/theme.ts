@@ -3,10 +3,12 @@ import { detectCapabilities } from '../capability/detect.js';
 import { probeTerminalPalette } from '../probe/probe.js';
 import { readTerminalConfig, detectVSCodeFamily } from '../config/index.js';
 import { FALLBACK_PALETTE, ANSI_COLOR_INDICES } from '../color/palette.js';
+import { detectAppearance as detectSystemAppearance } from '../appearance/detect.js';
 import type { Theme, ThemeOptions, PaletteData } from './types.js';
 import type { AnsiColorIndex, AnsiColorName, RGB } from '../types.js';
 import type { Capabilities } from '../capability/types.js';
 import type { DetectOptions } from '../capability/types.js';
+import type { AppearanceResult } from '../appearance/types.js';
 
 /**
  * Detect the terminal's color palette and create a theme.
@@ -22,7 +24,13 @@ import type { DetectOptions } from '../capability/types.js';
  * @public
  */
 export async function detectTheme(options: ThemeOptions = {}): Promise<Theme> {
-  const { probeTimeout = 100, forceCapability, skipProbe = false } = options;
+  const {
+    probeTimeout = 100,
+    forceCapability,
+    skipProbe = false,
+    detectAppearance: shouldDetectAppearance = false,
+    forceAppearance,
+  } = options;
 
   // Detect base capabilities
   const detectOptions: DetectOptions = {};
@@ -47,8 +55,27 @@ export async function detectTheme(options: ThemeOptions = {}): Promise<Theme> {
     // Note: T2 (lightdark) detection would go here if implemented
   }
 
+  // Detect appearance if requested
+  let appearance: AppearanceResult | undefined;
+  if (shouldDetectAppearance || forceAppearance !== undefined) {
+    if (forceAppearance !== undefined) {
+      appearance = {
+        mode: forceAppearance,
+        source: 'none',
+        confidence: 'high',
+      };
+    } else {
+      appearance = await detectSystemAppearance({ timeout: probeTimeout });
+    }
+
+    // Upgrade to T2 if we got appearance info and currently at T1
+    if (appearance.mode !== 'unknown' && capabilities.theme === 'blind') {
+      capabilities = { ...capabilities, theme: 'lightdark' };
+    }
+  }
+
   // Create the theme object
-  return buildTheme(capabilities, palette);
+  return buildTheme(capabilities, palette, appearance);
 }
 
 /**
@@ -125,11 +152,16 @@ function inferBackground(foreground: RGB | null): RGB {
  *
  * @param capabilities - Detected terminal capabilities
  * @param palette - Palette data if available (T3), null otherwise (T1)
+ * @param appearance - Appearance data if detected, undefined otherwise
  * @returns A complete theme object
  *
  * @internal
  */
-function buildTheme(capabilities: Capabilities, palette: PaletteData | null): Theme {
+function buildTheme(
+  capabilities: Capabilities,
+  palette: PaletteData | null,
+  appearance?: AppearanceResult
+): Theme {
   // Get terminal background for fade transform
   const terminalBackground = palette?.background ?? null;
 
@@ -204,6 +236,9 @@ function buildTheme(capabilities: Capabilities, palette: PaletteData | null): Th
 
     // Palette
     palette,
+
+    // Appearance (optional)
+    ...(appearance !== undefined && { appearance }),
   };
 }
 

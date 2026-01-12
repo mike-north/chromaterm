@@ -287,10 +287,114 @@ Use `ansi` when you want chalk-compatible behavior without theme adaptation.
 
 ChromaTerm respects standard color environment variables:
 
-| Variable          | Effect                         |
-| ----------------- | ------------------------------ |
-| `NO_COLOR`        | Disables all color output (C0) |
-| `FORCE_COLOR=0-3` | Forces specific color level    |
+| Variable                | Effect                                  |
+| ----------------------- | --------------------------------------- |
+| `NO_COLOR`              | Disables all color output (C0)          |
+| `FORCE_COLOR=0-3`       | Forces specific color level             |
+| `CHROMATERM_APPEARANCE` | Forces light/dark mode (`light`/`dark`) |
+
+## Light/Dark Mode Detection
+
+ChromaTerm provides helpers for detecting whether the system is in light or dark mode, useful for CLIs that need to adapt their output accordingly.
+
+### System Appearance Detection
+
+Detect the operating system's light/dark mode setting:
+
+```typescript
+import { detectAppearance, detectAppearanceSync } from 'chromaterm';
+
+// Async detection (recommended - works on all platforms)
+const result = await detectAppearance();
+console.log(result.mode); // 'light', 'dark', or 'unknown'
+console.log(result.source); // 'macos', 'gnome', 'kde', 'windows', 'env', or 'none'
+console.log(result.confidence); // 'high', 'medium', or 'low'
+
+// Sync detection (fast, but only works on macOS)
+const syncResult = detectAppearanceSync();
+```
+
+**Platform Support:**
+
+| Platform    | Detection Method                                         |
+| ----------- | -------------------------------------------------------- |
+| macOS       | `defaults read -g AppleInterfaceStyle`                   |
+| Linux/GNOME | `gsettings get org.gnome.desktop.interface color-scheme` |
+| Linux/KDE   | `~/.config/kdeglobals` ColorScheme                       |
+| Windows     | Registry `AppsUseLightTheme`                             |
+
+### Terminal Background Detection
+
+For a simpler cross-platform approach, detect light/dark based on the terminal's actual background color luminance:
+
+```typescript
+import { detectBackgroundMode, isLightBackground } from 'chromaterm';
+
+// Probe the terminal and classify based on background luminance
+const result = await detectBackgroundMode();
+console.log(result.mode); // 'light' or 'dark' based on background brightness
+
+// Or check an RGB color directly
+import type { RGB } from 'chromaterm';
+const bg: RGB = { r: 30, g: 30, b: 30 };
+console.log(isLightBackground(bg)); // false (dark background)
+```
+
+This approach works in any terminal that supports OSC escape sequences, regardless of OS.
+
+### Watching for Changes
+
+Subscribe to appearance changes with an EventEmitter-based watcher:
+
+```typescript
+import { watchAppearance } from 'chromaterm';
+
+const watcher = watchAppearance({
+  pollInterval: 5000, // Check every 5 seconds (default)
+});
+
+watcher.on('change', (event) => {
+  console.log(`Appearance changed: ${event.previousMode} -> ${event.currentMode}`);
+  // Re-render your UI, switch color schemes, etc.
+});
+
+watcher.on('error', (error) => {
+  console.error('Detection error:', error);
+});
+
+// Current mode is always accessible
+console.log(watcher.currentMode); // 'light', 'dark', or 'unknown'
+
+// Clean up when done
+watcher.dispose();
+
+// Or use AbortSignal for cleanup
+const controller = new AbortController();
+const watcher2 = watchAppearance({ signal: controller.signal });
+// Later: controller.abort();
+```
+
+The watcher automatically cleans up when:
+
+- `dispose()` is called
+- The AbortSignal is triggered
+- The process exits
+
+The polling interval is unref'd, so it won't keep your Node.js process alive.
+
+### Integration with detectTheme
+
+You can include appearance detection when creating a theme:
+
+```typescript
+const theme = await detectTheme({
+  detectAppearance: true,
+});
+
+if (theme.appearance?.mode === 'dark') {
+  // Use dark-mode-friendly colors
+}
+```
 
 ## How Detection Works
 
