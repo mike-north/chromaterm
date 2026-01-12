@@ -86,9 +86,8 @@ dist
 # Nx
 .nx/
 
-# API Extractor
+# API Extractor temp files (api-report/*.api.md should be committed)
 temp/
-api-report/*.api.md
 
 # Gatsby files
 .cache/
