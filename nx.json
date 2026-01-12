@@ -13,11 +13,7 @@
     },
     "lint": {
       "cache": true,
-      "inputs": [
-        "default",
-        "{workspaceRoot}/eslint.config.mjs",
-        "{workspaceRoot}/.eslintignore"
-      ]
+      "inputs": ["default", "{workspaceRoot}/eslint.config.mjs", "{workspaceRoot}/.eslintignore"]
     }
   },
   "namedInputs": {

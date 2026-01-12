@@ -4,6 +4,8 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "skipLibCheck": false
-  }
+    "skipLibCheck": true,
+    "typeRoots": ["./types", "./node_modules/@types"]
+  },
+  "files": ["types/supports-color.d.ts"]
 }

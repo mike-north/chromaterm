@@ -16,6 +16,14 @@ export default [
         project: './tsconfig.json',
         tsconfigRootDir: import.meta.dirname,
       },
+      globals: {
+        // Node.js globals
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': tseslint,
@@ -36,6 +44,9 @@ export default [
 
       // Allow ++ and -- operators
       'no-plusplus': 'off',
+
+      // Allow explicit type annotations even when inferrable (useful for public API clarity)
+      '@typescript-eslint/no-inferrable-types': 'off',
     },
   },
   // Prettier must be last to disable formatting rules

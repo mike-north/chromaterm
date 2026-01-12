@@ -23,25 +23,25 @@ Prior to implementation, OSC palette probing was tested across the macOS termina
 
 ### Summary
 
-| Metric | Result |
-|--------|--------|
-| Terminals tested | 8 |
-| Full palette support (T3) | 87.5% (7/8) |
-| At least light/dark detection | 100% |
-| Critical issues (corruption, hangs) | 0 |
-| tmux pass-through success | 86% (6/7 outer terminals) |
+| Metric                              | Result                    |
+| ----------------------------------- | ------------------------- |
+| Terminals tested                    | 8                         |
+| Full palette support (T3)           | 87.5% (7/8)               |
+| At least light/dark detection       | 100%                      |
+| Critical issues (corruption, hangs) | 0                         |
+| tmux pass-through success           | 86% (6/7 outer terminals) |
 
 ### Probe Timing Results
 
 Latency testing revealed that OSC probing is effectively free for native terminals:
 
-| Terminal | P95 Latency | Assessment |
-|----------|-------------|------------|
-| Ghostty | 1.44ms | 🚀 Negligible |
-| Alacritty | 1.04ms | 🚀 Negligible |
-| Terminal.app | 1.71ms | 🚀 Negligible |
-| kitty | 6.02ms | 🚀 Negligible |
-| VS Code | 116.81ms | 🐢 Use config parsing |
+| Terminal     | P95 Latency | Assessment            |
+| ------------ | ----------- | --------------------- |
+| Ghostty      | 1.44ms      | 🚀 Negligible         |
+| Alacritty    | 1.04ms      | 🚀 Negligible         |
+| Terminal.app | 1.71ms      | 🚀 Negligible         |
+| kitty        | 6.02ms      | 🚀 Negligible         |
+| VS Code      | 116.81ms    | 🐢 Use config parsing |
 
 **Key finding**: Native terminals respond in <2ms (P95). The probe cost is imperceptible - caching is optional, not required.
 
@@ -77,12 +77,12 @@ ChromaTerm reasons about terminal capabilities along two independent axes:
 
 What color formats can the terminal render?
 
-| Level | Name | Description |
-|-------|------|-------------|
-| C0 | None | No color support (non-TTY, `NO_COLOR` set, etc.) |
-| C1 | ANSI-16 | Standard 16-color palette |
-| C2 | ANSI-256 | Extended 256-color palette |
-| C3 | Truecolor | Full 24-bit RGB |
+| Level | Name      | Description                                      |
+| ----- | --------- | ------------------------------------------------ |
+| C0    | None      | No color support (non-TTY, `NO_COLOR` set, etc.) |
+| C1    | ANSI-16   | Standard 16-color palette                        |
+| C2    | ANSI-256  | Extended 256-color palette                       |
+| C3    | Truecolor | Full 24-bit RGB                                  |
 
 Detection delegated to established libraries (`supports-color` or equivalent).
 
@@ -90,11 +90,11 @@ Detection delegated to established libraries (`supports-color` or equivalent).
 
 How well can we determine the user's actual palette colors?
 
-| Level | Name | Description |
-|-------|------|-------------|
-| T1 | Blind | No theme information; use ANSI semantics only |
-| T2 | Light/Dark | Can infer light vs dark mode |
-| T3 | Palette | Can query actual RGB values for ANSI 0-15 |
+| Level | Name       | Description                                   |
+| ----- | ---------- | --------------------------------------------- |
+| T1    | Blind      | No theme information; use ANSI semantics only |
+| T2    | Light/Dark | Can infer light vs dark mode                  |
+| T3    | Palette    | Can query actual RGB values for ANSI 0-15     |
 
 T3 is achieved via OSC escape sequence probing. T2 may be inferred from foreground/background luminance even if full palette query fails.
 
@@ -102,15 +102,15 @@ T3 is achieved via OSC escape sequence probing. T2 may be inferred from foregrou
 
 The combination of C-level and T-level determines what ChromaTerm can do:
 
-| Combination | Behavior |
-|-------------|----------|
-| C0 + any | No color output; all styling is no-op |
-| C1 + T1 | ANSI-16 only; modifiers are no-ops |
-| C1 + T3 | ANSI-16 only; modifiers still no-ops (can't render derived colors) |
-| C2 + T1 | Can render derived colors but not theme-aligned |
-| C2 + T3 | Theme-aligned, quantized to nearest ANSI-256 |
-| C3 + T1 | Full RGB but not theme-aligned |
-| C3 + T3 | **Gold tier**: Full RGB, theme-aligned |
+| Combination | Behavior                                                           |
+| ----------- | ------------------------------------------------------------------ |
+| C0 + any    | No color output; all styling is no-op                              |
+| C1 + T1     | ANSI-16 only; modifiers are no-ops                                 |
+| C1 + T3     | ANSI-16 only; modifiers still no-ops (can't render derived colors) |
+| C2 + T1     | Can render derived colors but not theme-aligned                    |
+| C2 + T3     | Theme-aligned, quantized to nearest ANSI-256                       |
+| C3 + T1     | Full RGB but not theme-aligned                                     |
+| C3 + T3     | **Gold tier**: Full RGB, theme-aligned                             |
 
 ---
 
@@ -119,18 +119,18 @@ The combination of C-level and T-level determines what ChromaTerm can do:
 ### Module Structure
 
 ```typescript
-import { 
-  createTheme,      // Async factory for theme-relative colors
-  abs,              // Re-export of chalk for absolute colors
-  themes,           // Built-in theme palettes (auto, dracula, nord, etc.)
-  definePalette,    // Helper to define custom palettes
-  probe,            // Low-level probe utilities (advanced use)
-  
+import {
+  createTheme, // Async factory for theme-relative colors
+  abs, // Re-export of chalk for absolute colors
+  themes, // Built-in theme palettes (auto, dracula, nord, etc.)
+  definePalette, // Helper to define custom palettes
+  probe, // Low-level probe utilities (advanced use)
+
   // Cache adapters
-  EphemeralCache,   // Default: temp file + env var (session-scoped)
-  FileCache,        // Durable: specific file path
-  MemoryCache,      // In-process only
-  
+  EphemeralCache, // Default: temp file + env var (session-scoped)
+  FileCache, // Durable: specific file path
+  MemoryCache, // In-process only
+
   // Types
   type Theme,
   type Color,
@@ -157,27 +157,27 @@ interface ThemeOptions {
    * Pass null to disable caching entirely.
    */
   cache?: CacheAdapter | null;
-  
+
   /**
    * Force a fresh probe, ignoring any cached data.
    * The new probe result will still be written to cache.
    * Default: false
    */
   forceProbe?: boolean;
-  
+
   /**
    * Timeout for OSC probe responses (milliseconds).
    * Default: 100
    */
   probeTimeout?: number;
-  
+
   /**
    * Fallback palette to use when probing fails or returns insufficient data.
    * If not specified, falls back to ANSI-16 semantics (T1).
    * If specified, uses this palette for color transforms when probe fails.
    */
   fallback?: Palette;
-  
+
   /**
    * Force a specific capability level (for testing).
    * Default: auto-detect
@@ -204,9 +204,9 @@ interface Theme {
   magenta: Color;
   cyan: Color;
   white: Color;
-  
+
   // Bright variants
-  brightBlack: Color;   // aka gray
+  brightBlack: Color; // aka gray
   brightRed: Color;
   brightGreen: Color;
   brightYellow: Color;
@@ -214,24 +214,24 @@ interface Theme {
   brightMagenta: Color;
   brightCyan: Color;
   brightWhite: Color;
-  
+
   // Semantic aliases (map to ANSI colors)
-  error: Color;         // alias for red
-  warning: Color;       // alias for yellow
-  success: Color;       // alias for green
-  info: Color;          // alias for blue
-  muted: Color;         // alias for brightBlack (gray)
-  
+  error: Color; // alias for red
+  warning: Color; // alias for yellow
+  success: Color; // alias for green
+  info: Color; // alias for blue
+  muted: Color; // alias for brightBlack (gray)
+
   // Special
-  foreground: Color;    // Terminal's default foreground
-  background: Color;    // Terminal's default background
-  
+  foreground: Color; // Terminal's default foreground
+  background: Color; // Terminal's default background
+
   // Capability info
   readonly capabilities: {
     color: 'none' | 'ansi16' | 'ansi256' | 'truecolor';
     theme: 'blind' | 'lightdark' | 'palette';
   };
-  
+
   // For advanced use: raw palette data if available
   readonly palette: PaletteData | null;
 }
@@ -245,29 +245,29 @@ Colors are builders that support chained transformations:
 interface Color {
   // HSV transformations (amounts are -1.0 to +1.0)
   saturate(amount: number): Color;
-  desaturate(amount: number): Color;  // sugar for saturate(-amount)
+  desaturate(amount: number): Color; // sugar for saturate(-amount)
   lighten(amount: number): Color;
-  darken(amount: number): Color;      // sugar for lighten(-amount)
-  rotate(degrees: number): Color;     // hue rotation, -360 to +360
-  
+  darken(amount: number): Color; // sugar for lighten(-amount)
+  rotate(degrees: number): Color; // hue rotation, -360 to +360
+
   // Foreground/background composition
-  on(background: Color): Color;       // set background color
-  inverse(): Color;                   // swap foreground and background
-  
+  on(background: Color): Color; // set background color
+  inverse(): Color; // swap foreground and background
+
   // Text modifiers (ANSI SGR attributes)
   bold(): Color;
   dim(): Color;
   italic(): Color;
   underline(): Color;
   strikethrough(): Color;
-  hidden(): Color;                    // invisible text (same fg/bg)
-  
+  hidden(): Color; // invisible text (same fg/bg)
+
   // Terminal rendering (returns styled string)
   (text: string): string;
-  
+
   // Introspection
-  readonly rgb: [number, number, number] | null;  // resolved RGB if known
-  readonly ansi: number;                          // ANSI color index (0-15)
+  readonly rgb: [number, number, number] | null; // resolved RGB if known
+  readonly ansi: number; // ANSI color index (0-15)
 }
 ```
 
@@ -313,7 +313,7 @@ console.log(importantError('CRITICAL ERROR'));
 
 // Inverse (swap fg/bg)
 const inverted = theme.green.inverse();
-console.log(inverted('Inverted green'));  // green background, default foreground
+console.log(inverted('Inverted green')); // green background, default foreground
 
 // Absolute colors via chalk (escape hatch)
 console.log(abs.hex('#ff6600')('Exact orange'));
@@ -390,8 +390,8 @@ import { createTheme, themes } from 'chromaterm';
 // Offer users a choice
 const availableThemes = {
   'Match my terminal': themes.auto,
-  'Dracula': themes.dracula,
-  'Nord': themes.nord,
+  Dracula: themes.dracula,
+  Nord: themes.nord,
   'Solarized Light': themes.solarizedLight,
   'Solarized Dark': themes.solarizedDark,
 };
@@ -424,7 +424,7 @@ Fall back to a designed palette. Lose theme alignment but keep the ability to re
 
 ```typescript
 const theme = await createTheme(themes.auto, {
-  fallback: themes.dracula
+  fallback: themes.dracula,
 });
 // If probe fails → use Dracula palette, transforms work
 ```
@@ -439,14 +439,14 @@ CLI authors can define their own static palettes:
 import { createTheme, definePalette } from 'chromaterm';
 
 const myAppPalette = definePalette({
-  black:   [30, 30, 30],
-  red:     [220, 80, 80],
-  green:   [80, 200, 120],
-  yellow:  [240, 200, 80],
-  blue:    [80, 140, 220],
+  black: [30, 30, 30],
+  red: [220, 80, 80],
+  green: [80, 200, 120],
+  yellow: [240, 200, 80],
+  blue: [80, 140, 220],
   magenta: [180, 100, 200],
-  cyan:    [80, 200, 200],
-  white:   [240, 240, 240],
+  cyan: [80, 200, 200],
+  white: [240, 240, 240],
   // Bright variants...
   foreground: [240, 240, 240],
   background: [30, 30, 30],
@@ -462,6 +462,7 @@ const theme = await createTheme(myAppPalette);
 ### Problem
 
 While OSC probing is fast for native terminals (<2ms P95), some environments benefit from caching:
+
 - VS Code family when config parsing fails (fallback to slow probe)
 - Terminals with high latency (SSH, exotic setups)
 - CLI tools that want to guarantee zero probe overhead
@@ -469,6 +470,7 @@ While OSC probing is fast for native terminals (<2ms P95), some environments ben
 ### Solution
 
 ChromaTerm provides a pluggable caching system. **Caching is optional** - most terminals are fast enough that probing on every invocation is acceptable.
+
 1. Use the default ephemeral cache (temp file + env var)
 2. Provide a custom cache adapter to integrate with their own config system
 3. Disable caching entirely
@@ -482,13 +484,13 @@ interface CacheAdapter {
    * Return null if no cache exists or cache is invalid.
    */
   read(): Promise<CacheData | null> | CacheData | null;
-  
+
   /**
    * Store palette data.
    * Implementation determines durability and location.
    */
   write(data: CacheData): Promise<void> | void;
-  
+
   /**
    * Optional: Clear cached data.
    */
@@ -497,7 +499,7 @@ interface CacheAdapter {
 
 interface CacheData {
   version: 1;
-  timestamp: number;          // Unix ms
+  timestamp: number; // Unix ms
   termProgram: string | null; // $TERM_PROGRAM if available
   capabilities: {
     color: 'none' | 'ansi16' | 'ansi256' | 'truecolor';
@@ -507,7 +509,7 @@ interface CacheData {
 }
 
 interface PaletteData {
-  colors: Array<[number, number, number]>;  // RGB for ANSI 0-15
+  colors: Array<[number, number, number]>; // RGB for ANSI 0-15
   foreground: [number, number, number];
   background: [number, number, number];
 }
@@ -527,11 +529,12 @@ const theme = await createTheme();
 
 // Equivalent to:
 const theme = await createTheme({
-  cache: new EphemeralCache()
+  cache: new EphemeralCache(),
 });
 ```
 
 **Behavior:**
+
 - On first probe, writes results to `os.tmpdir()/chromaterm-<pid>.json`
 - Sets `CHROMATERM_CACHE` env var pointing to the file
 - Child processes inherit the env var and skip probing
@@ -549,11 +552,12 @@ import { homedir } from 'os';
 
 const configDir = join(homedir(), '.my-cli');
 const theme = await createTheme({
-  cache: new FileCache(join(configDir, 'terminal-palette.json'))
+  cache: new FileCache(join(configDir, 'terminal-palette.json')),
 });
 ```
 
 **Behavior:**
+
 - Reads/writes to the specified path
 - No automatic TTL (file persists until explicitly cleared)
 - CLI tool is responsible for cache invalidation (e.g., via `mycli setup` command)
@@ -595,13 +599,13 @@ class MyCliCache implements CacheAdapter {
     const config = readConfig();
     return config.terminalPalette ?? null;
   }
-  
+
   write(data: CacheData): void {
     const config = readConfig();
     config.terminalPalette = data;
     writeConfig(config);
   }
-  
+
   clear(): void {
     const config = readConfig();
     delete config.terminalPalette;
@@ -610,13 +614,14 @@ class MyCliCache implements CacheAdapter {
 }
 
 const theme = await createTheme({
-  cache: new MyCliCache()
+  cache: new MyCliCache(),
 });
 ```
 
 ### CLI Setup Commands
 
 CLI tools that use durable caching should provide a setup command that:
+
 1. Forces a fresh probe (bypasses cache)
 2. Writes results to durable storage
 3. Optionally validates the probe succeeded
@@ -629,13 +634,13 @@ import { createTheme, FileCache } from 'chromaterm';
 
 async function setupCommand() {
   const cache = new FileCache('~/.mycli/palette.json');
-  
+
   // Force fresh probe
-  const theme = await createTheme({ 
+  const theme = await createTheme({
     cache,
-    forceProbe: true  // Ignores existing cache, writes new result
+    forceProbe: true, // Ignores existing cache, writes new result
   });
-  
+
   if (theme.capabilities.theme === 'palette') {
     console.log('✓ Terminal palette detected and cached');
     console.log('  Your theme-aligned colors are ready!');
@@ -649,6 +654,7 @@ async function setupCommand() {
 ### Cache Validation
 
 All cache adapters should validate data before use:
+
 - Schema version matches
 - Required fields present
 - Palette data has correct structure
@@ -698,22 +704,22 @@ Where `rrrr`, `gggg`, `bbbb` are 16-bit hex values (we use the high 8 bits).
 
 #### Tested Terminals (macOS - January 2025)
 
-| Terminal | T-Level | P95 Latency | Detection Method | Terminator |
-|----------|---------|-------------|------------------|------------|
-| Ghostty | T3 ✅ | 1.44ms | `TERM_PROGRAM=ghostty` | BEL |
-| Alacritty | T3 ✅ | 1.04ms | (none reliable) | BEL |
-| Terminal.app | T3 ✅ | 1.71ms | `TERM_PROGRAM=Apple_Terminal` | BEL |
-| kitty | T3 ✅ | 6.02ms | `TERM=xterm-kitty` | ST |
-| iTerm2 | T3 ✅ | (not timed) | `TERM_PROGRAM=iTerm.app` | ST |
-| Hyper | T3 ✅ | (not timed) | `TERM_PROGRAM=Hyper` | ST |
-| VS Code | T3 ✅ | 116ms | Config parsing preferred | ST |
-| Warp | T2 ⚠️ | N/A | `TERM_PROGRAM=WarpTerminal` | BEL |
+| Terminal     | T-Level | P95 Latency | Detection Method              | Terminator |
+| ------------ | ------- | ----------- | ----------------------------- | ---------- |
+| Ghostty      | T3 ✅   | 1.44ms      | `TERM_PROGRAM=ghostty`        | BEL        |
+| Alacritty    | T3 ✅   | 1.04ms      | (none reliable)               | BEL        |
+| Terminal.app | T3 ✅   | 1.71ms      | `TERM_PROGRAM=Apple_Terminal` | BEL        |
+| kitty        | T3 ✅   | 6.02ms      | `TERM=xterm-kitty`            | ST         |
+| iTerm2       | T3 ✅   | (not timed) | `TERM_PROGRAM=iTerm.app`      | ST         |
+| Hyper        | T3 ✅   | (not timed) | `TERM_PROGRAM=Hyper`          | ST         |
+| VS Code      | T3 ✅   | 116ms       | Config parsing preferred      | ST         |
+| Warp         | T2 ⚠️   | N/A         | `TERM_PROGRAM=WarpTerminal`   | BEL        |
 
 #### Tested Terminals (Linux - January 2025)
 
-| Terminal | T-Level | Detection Method | Notes |
-|----------|---------|------------------|-------|
-| GNOME Terminal (Ubuntu) | T3 ✅ | `TERM=xterm-256color` | Works out of the box |
+| Terminal                | T-Level | Detection Method      | Notes                |
+| ----------------------- | ------- | --------------------- | -------------------- |
+| GNOME Terminal (Ubuntu) | T3 ✅   | `TERM=xterm-256color` | Works out of the box |
 
 **Native terminal P95: <7ms** - Probe cost is negligible, caching optional.
 
@@ -721,15 +727,15 @@ Where `rrrr`, `gggg`, `bbbb` are 16-bit hex values (we use the high 8 bits).
 
 #### tmux Pass-through Behavior (Tested)
 
-| Outer Terminal | tmux Result | Notes |
-|----------------|-------------|-------|
-| kitty | T3 ✅ | Pass-through works |
-| Ghostty | T3 ✅ | Pass-through works |
-| iTerm2 | T3 ✅ | Pass-through works |
-| Alacritty | T3 ✅ | Pass-through works |
-| VS Code | T3 ✅ | Pass-through works |
-| Hyper | T3 ✅ | Pass-through works |
-| Warp | T1 ❌ | Complete failure (worse than bare Warp) |
+| Outer Terminal | tmux Result | Notes                                   |
+| -------------- | ----------- | --------------------------------------- |
+| kitty          | T3 ✅       | Pass-through works                      |
+| Ghostty        | T3 ✅       | Pass-through works                      |
+| iTerm2         | T3 ✅       | Pass-through works                      |
+| Alacritty      | T3 ✅       | Pass-through works                      |
+| VS Code        | T3 ✅       | Pass-through works                      |
+| Hyper          | T3 ✅       | Pass-through works                      |
+| Warp           | T1 ❌       | Complete failure (worse than bare Warp) |
 
 **Key finding**: tmux passes through OSC queries without special configuration. Detect tmux via `TERM_PROGRAM=tmux` or `$TMUX` env var being set.
 
@@ -738,10 +744,12 @@ Where `rrrr`, `gggg`, `bbbb` are 16-bit hex values (we use the high 8 bits).
 The following platforms require testing before the library is considered production-ready:
 
 **Windows (WSL2)**
+
 - [ ] Windows Terminal
 - [ ] Windows Terminal + tmux
 
 **Linux Desktop**
+
 - [ ] GNOME Terminal
 - [ ] Konsole (KDE)
 - [ ] xterm (reference implementation)
@@ -749,6 +757,7 @@ The following platforms require testing before the library is considered product
 - [ ] Tilix
 
 **Linux Server/Remote**
+
 - [ ] SSH sessions (latency considerations)
 - [ ] mosh
 
@@ -770,22 +779,24 @@ function detectTerminal(): string | null {
   // Check TERM_PROGRAM first (most reliable)
   const termProgram = process.env.TERM_PROGRAM;
   if (termProgram) {
-    return {
-      'Apple_Terminal': 'terminal.app',
-      'iTerm.app': 'iterm2',
-      'vscode': 'vscode',
-      'Hyper': 'hyper',
-      'WarpTerminal': 'warp',
-      'ghostty': 'ghostty',
-      'tmux': 'tmux',
-    }[termProgram] ?? termProgram.toLowerCase();
+    return (
+      {
+        Apple_Terminal: 'terminal.app',
+        'iTerm.app': 'iterm2',
+        vscode: 'vscode',
+        Hyper: 'hyper',
+        WarpTerminal: 'warp',
+        ghostty: 'ghostty',
+        tmux: 'tmux',
+      }[termProgram] ?? termProgram.toLowerCase()
+    );
   }
-  
+
   // Fall back to TERM patterns
   const term = process.env.TERM;
   if (term?.includes('kitty')) return 'kitty';
   if (term?.includes('ghostty')) return 'ghostty';
-  
+
   // Alacritty has no unique identifier
   return null;
 }
@@ -793,10 +804,10 @@ function detectTerminal(): string | null {
 
 #### Known Terminal-Specific Handling
 
-| Terminal | Special Handling |
-|----------|------------------|
-| Warp | Detect via `TERM_PROGRAM=WarpTerminal`, cap at T2 (fg/bg only) |
-| tmux + Warp | Detect via `$TMUX` + parent detection, fall back to T1 |
+| Terminal    | Special Handling                                               |
+| ----------- | -------------------------------------------------------------- |
+| Warp        | Detect via `TERM_PROGRAM=WarpTerminal`, cap at T2 (fg/bg only) |
+| tmux + Warp | Detect via `$TMUX` + parent detection, fall back to T1         |
 
 ### Failure Modes
 
@@ -818,27 +829,27 @@ All VS Code derivatives report `TERM_PROGRAM=vscode`, so we differentiate using 
 ```typescript
 function detectVSCodeFamily(): { editor: string; configDir: string } | null {
   const termProgram = process.env.TERM_PROGRAM?.toLowerCase();
-  
+
   if (termProgram !== 'vscode') {
     return null;
   }
-  
+
   // macOS: use bundle identifier
   const bundleId = process.env.__CFBundleIdentifier ?? '';
-  
+
   if (bundleId.includes('windsurf')) {
     return { editor: 'windsurf', configDir: '.windsurf' };
   }
-  
+
   if (bundleId.includes('VSCode')) {
     return { editor: 'vscode', configDir: '.vscode' };
   }
-  
+
   // Cursor: use their explicit env vars (bundle ID is unstable build hash)
   if (process.env.CURSOR_CLI || process.env.CURSOR_TRACE_ID) {
     return { editor: 'cursor', configDir: '.cursor' };
   }
-  
+
   // Unknown derivative or Linux/Windows - default to .vscode
   return { editor: 'vscode', configDir: '.vscode' };
 }
@@ -846,11 +857,11 @@ function detectVSCodeFamily(): { editor: string; configDir: string } | null {
 
 ### Environment Variable Signatures (Tested January 2025)
 
-| Editor | `TERM_PROGRAM` | `__CFBundleIdentifier` | Other Signals |
-|--------|----------------|------------------------|---------------|
-| VS Code | `vscode` | `com.microsoft.VSCode` | - |
-| Cursor | `vscode` | `com.todesktop.*` (unstable) | `CURSOR_CLI`, `CURSOR_TRACE_ID` |
-| Windsurf | `vscode` | `com.exafunction.windsurf` | - |
+| Editor   | `TERM_PROGRAM` | `__CFBundleIdentifier`       | Other Signals                   |
+| -------- | -------------- | ---------------------------- | ------------------------------- |
+| VS Code  | `vscode`       | `com.microsoft.VSCode`       | -                               |
+| Cursor   | `vscode`       | `com.todesktop.*` (unstable) | `CURSOR_CLI`, `CURSOR_TRACE_ID` |
+| Windsurf | `vscode`       | `com.exafunction.windsurf`   | -                               |
 
 ### Settings File Location
 
@@ -915,7 +926,7 @@ test('detect vscode family environment', () => {
     CURSOR_CLI: !!process.env.CURSOR_CLI,
     CURSOR_TRACE_ID: !!process.env.CURSOR_TRACE_ID,
   };
-  
+
   attest(detection).snap();
 });
 ```
@@ -942,6 +953,7 @@ When a derived color is rendered to a string, ChromaTerm:
 ### Color Space
 
 Transformations operate in HSL color space:
+
 - **Hue**: 0-360 degrees
 - **Saturation**: 0-1 (0 = gray, 1 = fully saturated)
 - **Lightness**: 0-1 (0 = black, 1 = white)
@@ -958,14 +970,14 @@ rotate(degrees):    H' = (H + degrees) mod 360
 
 ### Degradation Behavior
 
-| Scenario | Behavior |
-|----------|----------|
-| C3 + T3 | Full fidelity: derive RGB from probed palette |
-| C3 + T1 | Use hardcoded "typical" RGB for ANSI colors, then transform |
-| C2 + T3 | Derive RGB, quantize to ANSI-256 |
-| C2 + T1 | Use hardcoded RGB, quantize to ANSI-256 |
-| C1 + any | Transformations are no-ops; output base ANSI color |
-| C0 + any | No escape sequences; return plain text |
+| Scenario | Behavior                                                    |
+| -------- | ----------------------------------------------------------- |
+| C3 + T3  | Full fidelity: derive RGB from probed palette               |
+| C3 + T1  | Use hardcoded "typical" RGB for ANSI colors, then transform |
+| C2 + T3  | Derive RGB, quantize to ANSI-256                            |
+| C2 + T1  | Use hardcoded RGB, quantize to ANSI-256                     |
+| C1 + any | Transformations are no-ops; output base ANSI color          |
+| C0 + any | No escape sequences; return plain text                      |
 
 ### Hardcoded Fallback Palette
 
@@ -973,22 +985,22 @@ When T1 (blind), ChromaTerm uses these RGB values as starting points:
 
 ```typescript
 const FALLBACK_PALETTE = {
-  black:         [0, 0, 0],
-  red:           [205, 49, 49],
-  green:         [13, 188, 121],
-  yellow:        [229, 229, 16],
-  blue:          [36, 114, 200],
-  magenta:       [188, 63, 188],
-  cyan:          [17, 168, 205],
-  white:         [229, 229, 229],
-  brightBlack:   [102, 102, 102],
-  brightRed:     [241, 76, 76],
-  brightGreen:   [35, 209, 139],
-  brightYellow:  [245, 245, 67],
-  brightBlue:    [59, 142, 234],
+  black: [0, 0, 0],
+  red: [205, 49, 49],
+  green: [13, 188, 121],
+  yellow: [229, 229, 16],
+  blue: [36, 114, 200],
+  magenta: [188, 63, 188],
+  cyan: [17, 168, 205],
+  white: [229, 229, 229],
+  brightBlack: [102, 102, 102],
+  brightRed: [241, 76, 76],
+  brightGreen: [35, 209, 139],
+  brightYellow: [245, 245, 67],
+  brightBlue: [59, 142, 234],
   brightMagenta: [214, 112, 214],
-  brightCyan:    [41, 184, 219],
-  brightWhite:   [255, 255, 255],
+  brightCyan: [41, 184, 219],
+  brightWhite: [255, 255, 255],
 };
 ```
 
@@ -1004,13 +1016,13 @@ ChromaTerm never throws on capability detection or probing failures. It degrades
 
 ### Specific Behaviors
 
-| Situation | Behavior |
-|-----------|----------|
-| `createTheme()` probe timeout | Resolve with T1 capabilities |
-| `createTheme()` in non-TTY | Resolve with C0+T1 |
-| Invalid cache file | Ignore cache, re-probe |
-| Transformation on C1 | No-op, return base color |
-| `chalk` not available | Throw on import (hard dependency) |
+| Situation                     | Behavior                          |
+| ----------------------------- | --------------------------------- |
+| `createTheme()` probe timeout | Resolve with T1 capabilities      |
+| `createTheme()` in non-TTY    | Resolve with C0+T1                |
+| Invalid cache file            | Ignore cache, re-probe            |
+| Transformation on C1          | No-op, return base color          |
+| `chalk` not available         | Throw on import (hard dependency) |
 
 ### Debugging
 
@@ -1059,12 +1071,12 @@ Snapshot-based tests for integration behavior:
 
 ```typescript
 // Mock probe returns these RGB values for ANSI colors
-const mockPalette = { /* ... */ };
+const mockPalette = {
+  /* ... */
+};
 
 // Snapshot the full output
-attest(
-  resolveColor(mockPalette, 'red', [{ saturate: -0.3 }])
-).snap();
+attest(resolveColor(mockPalette, 'red', [{ saturate: -0.3 }])).snap();
 ```
 
 ### Real Terminal Smoke Tests
@@ -1080,6 +1092,7 @@ npx chromaterm-smoke
 ```
 
 Output:
+
 ```
 ChromaTerm Smoke Test
 =====================
@@ -1103,6 +1116,7 @@ Change your terminal theme and run again to verify alignment.
 #### Test Matrix
 
 **macOS (Tested ✅)**
+
 - [x] kitty - T3 ✅
 - [x] Ghostty - T3 ✅
 - [x] Alacritty - T3 ✅
@@ -1115,10 +1129,12 @@ Change your terminal theme and run again to verify alignment.
 - [x] tmux (in Warp) - T1 ❌
 
 **Windows WSL2 (Pending)**
+
 - [ ] Windows Terminal
 - [ ] Windows Terminal + tmux
 
 **Linux Desktop (Partial)**
+
 - [x] GNOME Terminal (Ubuntu) - T3 ✅
 - [ ] Konsole (KDE)
 - [ ] xterm
@@ -1126,10 +1142,12 @@ Change your terminal theme and run again to verify alignment.
 - [ ] Tilix
 
 **Remote (Pending)**
+
 - [ ] SSH session (test with extended timeout)
 - [ ] mosh
 
 For each, verify:
+
 1. Capabilities detected correctly
 2. Base colors match terminal theme
 3. Derived colors are visually correct transformations
@@ -1173,7 +1191,7 @@ const theme = await createTheme({
   configParsing: {
     enabled: true,
     terminals: ['kitty', 'alacritty'],
-  }
+  },
 });
 ```
 
@@ -1193,13 +1211,16 @@ const theme = createThemeForXterm(xtermInstance);
 ## Dependencies
 
 ### Runtime
+
 - `chalk` (^5.x) - Escape sequence generation, absolute colors
 
 ### Development
+
 - `@ark/attest` - Testing
 - `typescript` (^5.x)
 
 ### Peer/Optional
+
 - None
 
 ---
@@ -1231,12 +1252,12 @@ chromaterm/
 
 ## Glossary
 
-| Term | Definition |
-|------|------------|
-| **C-level** | Color output capability (C0-C3) |
-| **T-level** | Theme alignment capability (T1-T3) |
-| **OSC** | Operating System Command escape sequences |
-| **Probe** | Runtime query to determine terminal palette |
-| **Derived color** | A color computed by transforming a base ANSI color |
+| Term               | Definition                                             |
+| ------------------ | ------------------------------------------------------ |
+| **C-level**        | Color output capability (C0-C3)                        |
+| **T-level**        | Theme alignment capability (T1-T3)                     |
+| **OSC**            | Operating System Command escape sequences              |
+| **Probe**          | Runtime query to determine terminal palette            |
+| **Derived color**  | A color computed by transforming a base ANSI color     |
 | **Absolute color** | A color specified by exact RGB/hex, not theme-relative |
-| **Quantize** | Convert RGB to nearest ANSI-256 index |
+| **Quantize**       | Convert RGB to nearest ANSI-256 index                  |

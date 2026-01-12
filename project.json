@@ -25,7 +25,7 @@
       "dependsOn": ["build:tsc"],
       "outputs": ["{projectRoot}/dist"],
       "options": {
-        "command": "normalize-declaration-files --project ."
+        "command": "declaration-file-normalizer dist/index.d.ts"
       }
     },
     "build:bundle": {

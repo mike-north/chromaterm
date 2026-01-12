@@ -1,0 +1,10 @@
+{
+  "workbench.colorCustomizations": {
+    "terminal.foreground": "#ffffff",
+    "terminal.ansiRed": "#ff0000",
+    "terminal.ansiGreen": "#00ff00",
+    "terminal.ansiBlue": "#0000ff"
+  },
+  "editor.fontSize": 14,
+  "files.autoSave": "onFocusChange"
+}

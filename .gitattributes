@@ -1,0 +1,4 @@
+# Generated API documentation - exclude from language stats and collapse in diffs
+docs/**/*.md linguist-generated=true
+# Lock files
+pnpm-lock.yaml linguist-generated=true

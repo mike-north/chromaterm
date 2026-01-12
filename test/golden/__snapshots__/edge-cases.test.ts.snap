@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Edge Cases > should handle empty string 1`] = `""`;
+
+exports[`Edge Cases > should handle mixed content 1`] = `
+"[31mHello 世界 🌍 123 	[39m
+[31m[39m"
+`;
+
+exports[`Edge Cases > should handle multiple spaces 1`] = `"[31mhello     world[39m"`;
+
+exports[`Edge Cases > should handle newlines 1`] = `
+"[31mline1[39m
+[31mline2[39m"
+`;
+
+exports[`Edge Cases > should handle special escape sequences 1`] = `"[31m\\x1b[31m[39m"`;
+
+exports[`Edge Cases > should handle string with existing ANSI codes 1`] = `"[31m[32mgreen[0m[39m"`;
+
+exports[`Edge Cases > should handle strings with only whitespace 1`] = `"[31m   [39m"`;
+
+exports[`Edge Cases > should handle strings with only whitespace 2`] = `
+"[31m[39m
+[31m[39m
+[31m[39m
+[31m[39m"
+`;
+
+exports[`Edge Cases > should handle tabs and special characters 1`] = `"[31mhello	world[39m"`;
+
+exports[`Edge Cases > should handle tabs and special characters 2`] = `
+"[31mtest[39m
+[31mwindows[39m"
+`;
+
+exports[`Edge Cases > should handle unicode characters 1`] = `"[31m你好世界[39m"`;
+
+exports[`Edge Cases > should handle unicode characters 2`] = `"[31m🎨 colors[39m"`;
+
+exports[`Edge Cases > should handle zero-width characters 1`] = `"[31mhello​world[39m"`;

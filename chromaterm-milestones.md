@@ -9,6 +9,7 @@ This document defines the implementation plan for ChromaTerm, broken into discre
 ### Feasibility Status ✅
 
 OSC palette probing was validated in January 2025 across 8 macOS terminals:
+
 - **87.5% achieved T3** (full palette probing)
 - **100% achieved at least T2** (fg/bg detection)
 - **Zero critical issues** (no stdin corruption, hangs, or wrong data)
@@ -19,6 +20,7 @@ OSC palette probing was validated in January 2025 across 8 macOS terminals:
 ### Pending Platform Tests
 
 Before v1.0 release, the following platforms require validation:
+
 - Windows Terminal (WSL2)
 - Linux desktop terminals (GNOME Terminal, Konsole, xterm, xfce4-terminal, Tilix)
 
@@ -71,6 +73,7 @@ These are expected to work (xterm is the reference implementation) but must be e
 ### Deliverables
 
 1. **Color space conversions**
+
    ```typescript
    // src/colorspace.ts
    function rgbToHsl(r: number, g: number, b: number): [number, number, number];
@@ -78,6 +81,7 @@ These are expected to work (xterm is the reference implementation) but must be e
    ```
 
 2. **Transformation functions**
+
    ```typescript
    // src/transform.ts
    function saturate(hsl: HSL, amount: number): HSL;
@@ -86,6 +90,7 @@ These are expected to work (xterm is the reference implementation) but must be e
    ```
 
 3. **ANSI-256 quantization**
+
    ```typescript
    // src/quantize.ts
    function quantizeToAnsi256(r: number, g: number, b: number): number;
@@ -126,6 +131,7 @@ These are expected to work (xterm is the reference implementation) but must be e
 ### Deliverables
 
 1. **Wrap `supports-color`**
+
    ```typescript
    // src/detect.ts
    type ColorLevel = 'none' | 'ansi16' | 'ansi256' | 'truecolor';
@@ -174,6 +180,7 @@ These are expected to work (xterm is the reference implementation) but must be e
 ### Deliverables
 
 1. **Color builder class**
+
    ```typescript
    // src/color.ts
    class Color {
@@ -183,11 +190,11 @@ These are expected to work (xterm is the reference implementation) but must be e
      lighten(amount: number): Color;
      darken(amount: number): Color;
      rotate(degrees: number): Color;
-     
+
      // Composition
      on(background: Color): Color;
      inverse(): Color;
-     
+
      // Text modifiers (ANSI SGR)
      bold(): Color;
      dim(): Color;
@@ -195,10 +202,10 @@ These are expected to work (xterm is the reference implementation) but must be e
      underline(): Color;
      strikethrough(): Color;
      hidden(): Color;
-     
+
      // Callable - returns styled string
      (text: string): string;
-     
+
      // Introspection
      get rgb(): RGB | null;
      get ansi(): number;
@@ -206,25 +213,27 @@ These are expected to work (xterm is the reference implementation) but must be e
    ```
 
 2. **Theme object (T1 only)**
+
    ```typescript
    // src/theme.ts
    interface Theme {
      black: Color;
      red: Color;
      // ... all 16 ANSI colors
-     error: Color;    // alias → red
-     warning: Color;  // alias → yellow
-     success: Color;  // alias → green
-     info: Color;     // alias → blue
-     muted: Color;    // alias → brightBlack
+     error: Color; // alias → red
+     warning: Color; // alias → yellow
+     success: Color; // alias → green
+     info: Color; // alias → blue
+     muted: Color; // alias → brightBlack
      foreground: Color;
      background: Color;
      capabilities: Capabilities;
-     palette: null;   // T1 has no palette
+     palette: null; // T1 has no palette
    }
    ```
 
 3. **Synchronous theme factory for T1**
+
    ```typescript
    function createT1Theme(): Theme;
    ```
@@ -262,38 +271,44 @@ These are expected to work (xterm is the reference implementation) but must be e
 ### Deliverables
 
 1. **Probe execution**
+
    ```typescript
    // src/probe.ts
    interface ProbeResult {
      success: boolean;
-     colors: Map<number, RGB>;      // ANSI indices 0-15
+     colors: Map<number, RGB>; // ANSI indices 0-15
      foreground: RGB | null;
      background: RGB | null;
-     rawResponses: string[];        // for debugging
+     rawResponses: string[]; // for debugging
    }
-   
+
    async function probeTerminalPalette(options?: {
-     timeout?: number;              // default 100ms
+     timeout?: number; // default 100ms
    }): Promise<ProbeResult>;
    ```
 
 2. **OSC query generation**
+
    ```typescript
-   function generatePaletteQueries(): string;  // All queries in one string
+   function generatePaletteQueries(): string; // All queries in one string
    ```
 
 3. **Response parsing**
+
    ```typescript
    function parseOscResponses(raw: string): Map<number, RGB>;
    ```
+
    - Loose parsing to handle terminal quirks
    - Extract RGB from `rgb:rrrr/gggg/bbbb` format
    - Handle partial responses gracefully
 
 4. **T-level inference**
+
    ```typescript
    function inferThemeLevel(probeResult: ProbeResult): ThemeLevel;
    ```
+
    - T3 if all 16 colors + fg/bg probed
    - T2 if only fg/bg probed (can infer light/dark)
    - T1 if probe failed entirely
@@ -336,24 +351,26 @@ These are expected to work (xterm is the reference implementation) but must be e
 ### Deliverables
 
 1. **VS Code family detection**
+
    ```typescript
    // src/vscode.ts
    interface VSCodeFamilyInfo {
      editor: 'vscode' | 'cursor' | 'windsurf';
      configDir: string;
    }
-   
+
    function detectVSCodeFamily(): VSCodeFamilyInfo | null;
    ```
 
 2. **Settings file parser**
+
    ```typescript
    interface ParsedVSCodeColors {
      foreground: RGB | null;
      background: RGB | null;
-     colors: Map<number, RGB>;  // ANSI 0-15
+     colors: Map<number, RGB>; // ANSI 0-15
    }
-   
+
    function parseVSCodeSettings(settingsPath: string): ParsedVSCodeColors | null;
    ```
 
@@ -375,11 +392,11 @@ These are expected to work (xterm is the reference implementation) but must be e
 
 ### Detection Signals (Tested)
 
-| Editor | `__CFBundleIdentifier` | Env Vars |
-|--------|------------------------|----------|
-| VS Code | `com.microsoft.VSCode` | - |
-| Cursor | (unstable) | `CURSOR_CLI`, `CURSOR_TRACE_ID` |
-| Windsurf | `com.exafunction.windsurf` | - |
+| Editor   | `__CFBundleIdentifier`     | Env Vars                        |
+| -------- | -------------------------- | ------------------------------- |
+| VS Code  | `com.microsoft.VSCode`     | -                               |
+| Cursor   | (unstable)                 | `CURSOR_CLI`, `CURSOR_TRACE_ID` |
+| Windsurf | `com.exafunction.windsurf` | -                               |
 
 ### Test Coverage
 
@@ -411,10 +428,12 @@ These are expected to work (xterm is the reference implementation) but must be e
 ### Deliverables
 
 1. **Theme factory with probing**
+
    ```typescript
    // src/theme.ts
    async function createTheme(options?: ThemeOptions): Promise<Theme>;
    ```
+
    - Probe terminal on first call
    - Return T3 theme if probe succeeds
    - Fall back to T1 theme if probe fails
@@ -431,7 +450,7 @@ These are expected to work (xterm is the reference implementation) but must be e
 4. **Color introspection**
    ```typescript
    const derived = theme.red.saturate(0.2);
-   console.log(derived.rgb);  // [230, 50, 50] (example)
+   console.log(derived.rgb); // [230, 50, 50] (example)
    console.log(derived.ansi); // 1 (base was red)
    ```
 
@@ -463,6 +482,7 @@ These are expected to work (xterm is the reference implementation) but must be e
 ### Deliverables
 
 1. **Cache adapter interface**
+
    ```typescript
    // src/cache.ts
    interface CacheAdapter {
@@ -470,7 +490,7 @@ These are expected to work (xterm is the reference implementation) but must be e
      write(data: CacheData): Promise<void> | void;
      clear?(): Promise<void> | void;
    }
-   
+
    interface CacheData {
      version: 1;
      timestamp: number;
@@ -481,6 +501,7 @@ These are expected to work (xterm is the reference implementation) but must be e
    ```
 
 2. **EphemeralCache adapter (default)**
+
    ```typescript
    // src/cache/ephemeral.ts
    class EphemeralCache implements CacheAdapter {
@@ -490,6 +511,7 @@ These are expected to work (xterm is the reference implementation) but must be e
    ```
 
 3. **FileCache adapter**
+
    ```typescript
    // src/cache/file.ts
    class FileCache implements CacheAdapter {
@@ -500,6 +522,7 @@ These are expected to work (xterm is the reference implementation) but must be e
    ```
 
 4. **MemoryCache adapter**
+
    ```typescript
    // src/cache/memory.ts
    class MemoryCache implements CacheAdapter {
@@ -508,6 +531,7 @@ These are expected to work (xterm is the reference implementation) but must be e
    ```
 
 5. **Cache validation**
+
    ```typescript
    function validateCacheData(data: unknown): data is CacheData;
    ```
@@ -515,8 +539,8 @@ These are expected to work (xterm is the reference implementation) but must be e
 6. **Integrate into `createTheme()`**
    ```typescript
    async function createTheme(options?: {
-     cache?: CacheAdapter | null;  // null = no caching
-     forceProbe?: boolean;         // bypass cache, write new result
+     cache?: CacheAdapter | null; // null = no caching
+     forceProbe?: boolean; // bypass cache, write new result
      // ... other options
    }): Promise<Theme>;
    ```
@@ -558,6 +582,7 @@ These are expected to work (xterm is the reference implementation) but must be e
 ### Deliverables
 
 1. **Re-export chalk**
+
    ```typescript
    // src/index.ts
    export { default as abs } from 'chalk';
@@ -590,6 +615,7 @@ These are expected to work (xterm is the reference implementation) but must be e
 ### Deliverables
 
 1. **Smoke test command**
+
    ```bash
    npx chromaterm-smoke
    ```
@@ -629,6 +655,7 @@ These are expected to work (xterm is the reference implementation) but must be e
 ### Deliverables
 
 1. **Probe response golden tests**
+
    ```typescript
    // Given these raw OSC responses...
    const mockResponses = '...';
@@ -636,6 +663,7 @@ These are expected to work (xterm is the reference implementation) but must be e
    ```
 
 2. **Resolution chain golden tests**
+
    ```typescript
    // Given this palette and these transforms...
    const result = resolveToEscapeSequence(palette, baseColor, transforms, cLevel);
@@ -674,19 +702,19 @@ test/
 
 ## Summary: v0.1.0 Release Contents
 
-| Milestone | Description | Status |
-|-----------|-------------|--------|
-| M0 | Project scaffolding | Required |
-| M1 | Color math primitives | Required |
-| M2 | Capability detection (C-level) | Required |
-| M3 | T1 baseline (ANSI-16 fallback) | Required |
-| M4 | OSC probing infrastructure | Required |
-| M5 | VS Code family config parsing | Required |
-| M6 | T3 resolution (theme-aligned) | Required |
-| M7 | Pluggable caching | Optional |
-| M8 | chalk re-export (`abs`) | Required |
-| M9 | Smoke test CLI | Required |
-| M10 | Golden tests | Required |
+| Milestone | Description                    | Status   |
+| --------- | ------------------------------ | -------- |
+| M0        | Project scaffolding            | Required |
+| M1        | Color math primitives          | Required |
+| M2        | Capability detection (C-level) | Required |
+| M3        | T1 baseline (ANSI-16 fallback) | Required |
+| M4        | OSC probing infrastructure     | Required |
+| M5        | VS Code family config parsing  | Required |
+| M6        | T3 resolution (theme-aligned)  | Required |
+| M7        | Pluggable caching              | Optional |
+| M8        | chalk re-export (`abs`)        | Required |
+| M9        | Smoke test CLI                 | Required |
+| M10       | Golden tests                   | Required |
 
 **Total estimated effort**: ~46 hours
 
@@ -745,21 +773,22 @@ test/
 
 ## Risk Register
 
-| Risk | Likelihood | Impact | Status |
-|------|------------|--------|--------|
-| OSC probing unreliable in major terminal | ~~Medium~~ **Low** | High | ✅ **Mitigated** - 87.5% T3 success on macOS |
-| Probe latency impacts CLI startup | ~~Medium~~ **Very Low** | Medium | ✅ **Mitigated** - P95 <7ms for native terminals |
-| VS Code probe latency | **N/A** | Medium | ✅ **Solved** - Config parsing instead (~5ms) |
-| Probing corrupts stdin | ~~Low~~ **Very Low** | High | ✅ **Mitigated** - Zero incidents in testing |
-| tmux breaks probing | ~~Medium~~ **Low** | Medium | ✅ **Mitigated** - Pass-through works in 6/7 terminals |
-| VS Code derivative detection drift | Low | Low | Fallback chain handles gracefully; attest-it snapshots detect changes |
-| chalk API changes | Low | Medium | Pin chalk version; wrapper provides stability |
-| Color math edge cases | Medium | Low | Comprehensive unit tests; HSL is well-understood |
-| Windows/Linux terminal support | Low | Medium | Expected to work; validation pending |
+| Risk                                     | Likelihood              | Impact | Status                                                                |
+| ---------------------------------------- | ----------------------- | ------ | --------------------------------------------------------------------- |
+| OSC probing unreliable in major terminal | ~~Medium~~ **Low**      | High   | ✅ **Mitigated** - 87.5% T3 success on macOS                          |
+| Probe latency impacts CLI startup        | ~~Medium~~ **Very Low** | Medium | ✅ **Mitigated** - P95 <7ms for native terminals                      |
+| VS Code probe latency                    | **N/A**                 | Medium | ✅ **Solved** - Config parsing instead (~5ms)                         |
+| Probing corrupts stdin                   | ~~Low~~ **Very Low**    | High   | ✅ **Mitigated** - Zero incidents in testing                          |
+| tmux breaks probing                      | ~~Medium~~ **Low**      | Medium | ✅ **Mitigated** - Pass-through works in 6/7 terminals                |
+| VS Code derivative detection drift       | Low                     | Low    | Fallback chain handles gracefully; attest-it snapshots detect changes |
+| chalk API changes                        | Low                     | Medium | Pin chalk version; wrapper provides stability                         |
+| Color math edge cases                    | Medium                  | Low    | Comprehensive unit tests; HSL is well-understood                      |
+| Windows/Linux terminal support           | Low                     | Medium | Expected to work; validation pending                                  |
 
 ### Remaining Risks
 
 The primary remaining risks are:
+
 1. **Color math correctness** - Must get right before v1.0 (hard to change later)
 2. **Windows/Linux coverage** - Untested but expected to work
 3. **Edge cases** - SSH latency, exotic terminals, nested multiplexers

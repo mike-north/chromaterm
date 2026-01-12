@@ -1,0 +1,6 @@
+{
+  "workbench.colorCustomizations": {
+    "terminal.foreground": "not-a-color",
+    this is not valid json
+  }
+}

@@ -1,0 +1,13 @@
+# Test fixtures with intentionally invalid content
+test/fixtures/vscode/settings-invalid.json
+
+# Build output
+dist/
+
+# Lock files (already handled by lockfiles config)
+pnpm-lock.yaml
+
+# Generated files
+docs/
+api-report/
+temp/

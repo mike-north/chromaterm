@@ -1,0 +1,63 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Golden Tests - Escape Sequence Output > C0 (no color) > should output plain text with no escapes 1`] = `"hello"`;
+
+exports[`Golden Tests - Escape Sequence Output > C0 (no color) > should output plain text with no escapes 2`] = `"hello"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should ignore transforms at T1 1`] = `"[31mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should ignore transforms at T1 2`] = `"[31mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output ANSI-16 escape codes for base colors 1`] = `"[31mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output ANSI-16 escape codes for base colors 2`] = `"[32mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output ANSI-16 escape codes for base colors 3`] = `"[34mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output ANSI-16 escape codes for base colors 4`] = `"[91mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output correct codes for backgrounds 1`] = `"[37m[41mhello[49m[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output correct codes for backgrounds 2`] = `"[30m[43mhello[49m[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output correct codes for modifiers 1`] = `"[31m[1mhello[22m[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output correct codes for modifiers 2`] = `"[31m[3mhello[23m[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output correct codes for modifiers 3`] = `"[31m[4mhello[24m[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output correct codes for modifiers 4`] = `"[31m[2mhello[22m[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C1 (ANSI-16) > should output correct codes for modifiers 5`] = `"[31m[9mhello[29m[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C2 (ANSI-256) > should output ANSI-256 codes when transforms applied at T3 1`] = `"[38;5;196mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C2 (ANSI-256) > should output ANSI-256 codes when transforms applied at T3 2`] = `"[38;5;111mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C3 (Truecolor) > should chain multiple transforms 1`] = `"[38;2;236;69;69mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C3 (Truecolor) > should chain multiple transforms 2`] = `"[38;2;20;42;114mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C3 (Truecolor) > should output RGB escape codes at T3 1`] = `"[38;2;205;49;49mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C3 (Truecolor) > should output RGB escape codes at T3 2`] = `"[38;2;254;0;0mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C3 (Truecolor) > should output RGB escape codes at T3 3`] = `"[38;2;152;192;237mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > C3 (Truecolor) > should output RGB escape codes at T3 4`] = `"[38;2;13;168;188mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > Complex compositions > should handle fg + bg + modifiers 1`] = `"[37m[41m[1mhello[22m[49m[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > Complex compositions > should handle multiple modifiers 1`] = `"[31m[1m[4mhello[24m[22m[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > Complex compositions > should handle multiple modifiers 2`] = `"[34m[2m[3mhello[23m[22m[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > Semantic colors > should map semantic names to correct colors 1`] = `"[31mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > Semantic colors > should map semantic names to correct colors 2`] = `"[33mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > Semantic colors > should map semantic names to correct colors 3`] = `"[32mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > Semantic colors > should map semantic names to correct colors 4`] = `"[34mhello[39m"`;
+
+exports[`Golden Tests - Escape Sequence Output > Semantic colors > should map semantic names to correct colors 5`] = `"[90mhello[39m"`;

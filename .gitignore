@@ -146,3 +146,7 @@ api-report/*.api.md
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+temp
+tmp
+scratch
