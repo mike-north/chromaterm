@@ -194,6 +194,124 @@ The `.fade()` transform creates an opacity effect by interpolating toward the ba
 
 Transforms require T3 capability to produce visible changes. At T1/T2, transforms are no-ops.
 
+### Gradients
+
+ChromaTerm provides gradient utilities for creating smooth color transitions using perceptually uniform OKLCH interpolation.
+
+#### Basic 1D Gradients
+
+```typescript
+import { detectTheme, createGradient } from 'chromaterm';
+
+const theme = await detectTheme();
+
+// Create a gradient from red to blue
+const gradient = createGradient([
+  { position: 0, color: theme.red },
+  { position: 1, color: theme.blue },
+]);
+
+// Sample the gradient at any position (0-1)
+const midColor = gradient.at(0.5); // Purple-ish color halfway between
+
+// Apply gradient colors to text
+const text = 'Hello Gradient!';
+for (let i = 0; i < text.length; i++) {
+  const t = i / (text.length - 1);
+  process.stdout.write(gradient.at(t)(text[i]));
+}
+```
+
+#### Multi-Stop Gradients
+
+```typescript
+// Rainbow gradient with multiple stops
+const rainbow = createGradient([
+  { position: 0, color: theme.red },
+  { position: 0.17, color: theme.yellow },
+  { position: 0.33, color: theme.green },
+  { position: 0.5, color: theme.cyan },
+  { position: 0.67, color: theme.blue },
+  { position: 0.83, color: theme.magenta },
+  { position: 1, color: theme.red },
+]);
+```
+
+#### Gradient Options
+
+```typescript
+const gradient = createGradient(stops, {
+  // Control hue interpolation direction
+  hueDirection: 'short', // 'short' | 'long' | 'increasing' | 'decreasing'
+
+  // Apply easing for non-linear interpolation
+  easing: (t) => t * t, // Ease-in quadratic
+
+  // Enable looping for seamless animations
+  loop: true,
+});
+
+// With loop: true, positions outside 0-1 wrap around
+gradient.at(1.5); // Same as gradient.at(0.5)
+gradient.at(-0.25); // Same as gradient.at(0.75)
+```
+
+#### 2D Gradients
+
+Create gradients that vary in two dimensions, useful for ASCII art effects:
+
+```typescript
+import { createGradient2D } from 'chromaterm';
+
+const gradient2D = createGradient2D(
+  {
+    x: [
+      { position: 0, color: theme.red },
+      { position: 1, color: theme.yellow },
+    ],
+    y: [
+      { position: 0, color: theme.blue },
+      { position: 1, color: theme.green },
+    ],
+  },
+  {
+    blendMode: 'average', // 'multiply' | 'overlay' | 'average'
+  }
+);
+
+// Sample at any (x, y) coordinate
+const color = gradient2D.at(0.5, 0.5);
+
+// Create a colored grid
+for (let y = 0; y < 10; y++) {
+  for (let x = 0; x < 40; x++) {
+    const color = gradient2D.at(x / 39, y / 9);
+    process.stdout.write(color('█'));
+  }
+  console.log();
+}
+```
+
+#### Direct OKLCH Interpolation
+
+For low-level control, use `interpolateOklch` directly:
+
+```typescript
+import { interpolateOklch, rgbToHsl, hslToRgb } from 'chromaterm';
+import type { RGB } from 'chromaterm';
+
+const red: RGB = { r: 255, g: 0, b: 0 };
+const blue: RGB = { r: 0, g: 0, b: 255 };
+
+// Interpolate between two RGB colors in OKLCH space
+const purple = interpolateOklch(red, blue, 0.5);
+// Result: perceptually uniform purple
+
+// Control hue direction
+const longWay = interpolateOklch(red, blue, 0.5, 'long');
+// Takes the long way around the color wheel (through green/yellow)
+```
+
 ### Color Introspection
 
 ```typescript
