@@ -92,6 +92,15 @@ export interface AppearanceWatcher extends EventEmitter {
 }
 
 // @public
+export type BlendMode =
+/** Multiply the RGB channels of both gradients */
+'multiply'
+/** Apply overlay blend mode (combination of multiply and screen) */
+| 'overlay'
+/** Average the RGB channels of both gradients */
+| 'average';
+
+// @public
 export function calculateLuminance(rgb: RGB): number;
 
 // @public
@@ -161,6 +170,12 @@ export interface ColorTransform {
 export function createColor(state: ColorState): Color;
 
 // @public
+export function createGradient(stops: GradientStop[], options?: GradientOptions): Gradient;
+
+// @public
+export function createGradient2D(input: Gradient2DInput, options?: Gradient2DOptions): Gradient2D;
+
+// @public
 export function createT1Theme(options?: DetectOptions): Theme;
 
 // @public
@@ -217,6 +232,50 @@ export function fade(rgb: RGB, target: RGB, amount: number): RGB;
 export const FALLBACK_PALETTE: Record<AnsiColorName, RGB>;
 
 // @public
+export interface Gradient {
+    at(position: number): Color;
+    readonly loop: boolean;
+    readonly stops: readonly GradientStop[];
+}
+
+// @public
+export interface Gradient2D {
+    at(x: number, y: number): Color;
+    readonly xGradient: Gradient;
+    readonly yGradient: Gradient;
+}
+
+// @public
+export interface Gradient2DInput {
+    x: GradientStop[];
+    y: GradientStop[];
+}
+
+// @public
+export interface Gradient2DOptions {
+    blendMode?: BlendMode;
+    easing?: (t: number) => number;
+    hueDirection?: HueDirection;
+    loop?: {
+        x?: boolean;
+        y?: boolean;
+    };
+}
+
+// @public
+export interface GradientOptions {
+    easing?: (t: number) => number;
+    hueDirection?: HueDirection;
+    loop?: boolean;
+}
+
+// @public
+export interface GradientStop {
+    color: Color;
+    position: number;
+}
+
+// @public
 export interface HSL {
     h: number;
     l: number;
@@ -225,6 +284,20 @@ export interface HSL {
 
 // @public
 export function hslToRgb(hsl: HSL): RGB;
+
+// @public
+export type HueDirection =
+/** Take the shortest path around the color wheel */
+'short'
+/** Take the longest path around the color wheel */
+| 'long'
+/** Always increase hue values (may wrap from 360 to 0) */
+| 'increasing'
+/** Always decrease hue values (may wrap from 0 to 360) */
+| 'decreasing';
+
+// @public
+export function interpolateOklch(color1: RGB, color2: RGB, t: number, hueDirection?: HueDirection): RGB;
 
 // Warning: (ae-internal-missing-underscore) The name "isColorDisabled" should be prefixed with an underscore because the declaration is marked as @internal
 //
@@ -241,6 +314,13 @@ export function isLightBackground(rgb: RGB): boolean;
 
 // @public
 export function lighten(rgb: RGB, amount: number): RGB;
+
+// @public
+export interface OKLCH {
+    c: number;
+    h: number | undefined;
+    l: number;
+}
 
 // @public
 export interface PaletteData {
@@ -377,7 +457,7 @@ export interface WatchAppearanceOptions {
 
 // Warnings were encountered during analysis:
 //
-// dist/index.d.ts:1030:1 - (ae-misplaced-package-tag) The @packageDocumentation comment must appear at the top of entry point *.d.ts file
+// dist/index.d.ts:1280:1 - (ae-misplaced-package-tag) The @packageDocumentation comment must appear at the top of entry point *.d.ts file
 
 // (No @packageDocumentation comment for this package)
 
