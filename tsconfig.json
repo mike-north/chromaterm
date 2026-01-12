@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    // Language and Environment
+    "target": "ES2022",
+    "lib": ["ES2022"],
+
+    // Modules
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+
+    // Emit
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "noEmitOnError": true,
+
+    // Interop Constraints - DO NOT enable esModuleInterop or allowSyntheticDefaultImports in libraries
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+
+    // Type Checking - Strict Mode
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+
+    // Type Checking - Additional Strictness
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Completeness
+    "skipLibCheck": false
+  },
+  "include": ["src/**/*", "test/**/*", "test-d/**/*"],
+  "exclude": ["node_modules", "dist", "temp"]
+}

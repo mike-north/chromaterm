@@ -1,0 +1,127 @@
+{
+  "name": "chromaterm",
+  "$schema": "./node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build:tsc", "build:normalize-dts", "build:bundle"],
+      "outputs": ["{projectRoot}/dist"],
+      "options": {
+        "commands": ["echo 'Build complete'"],
+        "parallel": false
+      }
+    },
+    "build:tsc": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/dist"],
+      "options": {
+        "command": "tsc -p tsconfig.build.json"
+      }
+    },
+    "build:normalize-dts": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build:tsc"],
+      "outputs": ["{projectRoot}/dist"],
+      "options": {
+        "command": "normalize-declaration-files --project ."
+      }
+    },
+    "build:bundle": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build:normalize-dts"],
+      "outputs": ["{projectRoot}/dist"],
+      "options": {
+        "command": "tsup"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "check:types",
+        "check:lint",
+        "check:format",
+        "check:api-report",
+        "check:syncpack",
+        "check:knip"
+      ],
+      "options": {
+        "commands": ["echo 'All checks passed'"],
+        "parallel": false
+      }
+    },
+    "check:types": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit"
+      }
+    },
+    "check:lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint ."
+      }
+    },
+    "check:format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prettier --check ."
+      }
+    },
+    "check:api-report": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "api-extractor run --verbose"
+      }
+    },
+    "check:syncpack": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "syncpack list-mismatches"
+      }
+    },
+    "check:knip": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "knip"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["test:unit", "test:types"],
+      "options": {
+        "commands": ["echo 'All tests passed'"],
+        "parallel": false
+      }
+    },
+    "test:unit": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run"
+      }
+    },
+    "test:types": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsd"
+      }
+    },
+    "generate:api-report": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "api-extractor run --local --verbose"
+      }
+    },
+    "generate:docs": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "outputs": ["{projectRoot}/docs"],
+      "options": {
+        "command": "api-documenter markdown -i temp -o docs"
+      }
+    }
+  }
+}

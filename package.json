@@ -1,0 +1,83 @@
+{
+  "name": "chromaterm",
+  "version": "0.0.0",
+  "description": "Terminal color library",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "nx run chromaterm:build",
+    "test": "nx run chromaterm:test",
+    "test:unit": "nx run chromaterm:test:unit",
+    "test:types": "nx run chromaterm:test:types",
+    "check": "nx run chromaterm:check",
+    "check:types": "nx run chromaterm:check:types",
+    "check:lint": "nx run chromaterm:check:lint",
+    "check:format": "nx run chromaterm:check:format",
+    "check:api-report": "nx run chromaterm:check:api-report",
+    "check:syncpack": "nx run chromaterm:check:syncpack",
+    "check:knip": "nx run chromaterm:check:knip",
+    "generate:api-report": "nx run chromaterm:generate:api-report",
+    "generate:docs": "nx run chromaterm:generate:docs",
+    "format": "prettier --write .",
+    "prepare": "husky"
+  },
+  "keywords": [
+    "terminal",
+    "color",
+    "ansi",
+    "chalk",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.24.0",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "supports-color": "^7.2.0"
+  },
+  "devDependencies": {
+    "@api-extractor-tools/declaration-file-normalizer": "alpha",
+    "@microsoft/api-documenter": "^8.0.0",
+    "@microsoft/api-extractor": "^8.0.0",
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "husky": "^9.0.0",
+    "knip": "^5.0.0",
+    "lint-staged": "^15.0.0",
+    "nx": "^21.0.0",
+    "prettier": "^3.0.0",
+    "syncpack": "^13.0.0",
+    "tsd": "^0.33.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.0.0",
+    "typescript": "~5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}
