@@ -67,7 +67,7 @@ export interface DetectBackgroundModeOptions {
  * terminal background color rather than system settings.
  *
  * @param options - Detection options including probe timeout
- * @returns 'light' if luminance > threshold, 'dark' otherwise, 'unknown' if probe fails
+ * @returns 'light' if luminance exceeds threshold, 'dark' otherwise, 'unknown' if probe fails
  *
  * @public
  */

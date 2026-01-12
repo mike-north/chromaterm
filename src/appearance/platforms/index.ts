@@ -6,19 +6,15 @@ import { detectWindowsAppearance } from './windows.js';
 
 /**
  * Detected platform for appearance detection.
- *
- * @internal
  */
-export type Platform = 'macos' | 'linux-gnome' | 'linux-kde' | 'windows' | 'unknown';
+type Platform = 'macos' | 'linux-gnome' | 'linux-kde' | 'windows' | 'unknown';
 
 /**
  * Detect the current platform for appearance detection.
  *
  * @returns The detected platform
- *
- * @internal
  */
-export function detectPlatform(): Platform {
+function detectPlatform(): Platform {
   const platform = process.platform;
 
   if (platform === 'darwin') return 'macos';
