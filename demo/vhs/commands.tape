@@ -2,7 +2,7 @@
 # This file is sourced by theme-specific tapes
 
 Hide
-Type "cd /Users/mnorth/stripe/chromaterm && clear"
+Type "clear"
 Enter
 Sleep 10ms
 

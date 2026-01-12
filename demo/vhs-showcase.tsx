@@ -31,7 +31,7 @@ const banner = [
   '   ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝',
 ];
 
-const BANNER_WIDTH = banner[0].length;
+const BANNER_WIDTH = banner[0]?.length ?? 0;
 
 /**
  * Creates a horizontal gradient bar using theme-derived colors
