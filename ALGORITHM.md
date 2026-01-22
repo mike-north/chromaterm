@@ -13,17 +13,20 @@ Modern terminal emulators allow programs to query the actual RGB values of their
 Terminal color capability exists on two independent axes:
 
 **C-level (Color Output Capability)**: What color formats can the terminal render?
+
 - C0: No color (non-TTY, `NO_COLOR` set)
 - C1: ANSI-16 (standard 16 colors)
 - C2: ANSI-256 (extended 256-color palette)
 - C3: Truecolor (24-bit RGB)
 
 **T-level (Theme Alignment Capability)**: How much do we know about the user's palette?
+
 - T1: Blind (no theme information)
 - T2: Light/Dark (can infer light vs dark mode from fg/bg luminance)
 - T3: Full Palette (know RGB values for all 16 ANSI colors)
 
 The combination determines what's possible:
+
 - C3 + T3: Full RGB output, perfectly aligned with user's theme
 - C1 + T1: Basic ANSI-16, no transformations possible
 - C2 + T3: Theme-aligned colors, quantized to ANSI-256
@@ -47,28 +50,30 @@ The VS Code integrated terminal (and derivatives like Cursor, Windsurf) has ~100
 
 **Detection signals (macOS):**
 
-| Editor | `TERM_PROGRAM` | `__CFBundleIdentifier` | Other Signals |
-|--------|----------------|------------------------|---------------|
-| VS Code | `vscode` | `com.microsoft.VSCode` | — |
-| Cursor | `vscode` | (unstable build hash) | `CURSOR_CLI` env var |
-| Windsurf | `vscode` | `com.exafunction.windsurf` | — |
+| Editor   | `TERM_PROGRAM` | `__CFBundleIdentifier`     | Other Signals        |
+| -------- | -------------- | -------------------------- | -------------------- |
+| VS Code  | `vscode`       | `com.microsoft.VSCode`     | —                    |
+| Cursor   | `vscode`       | (unstable build hash)      | `CURSOR_CLI` env var |
+| Windsurf | `vscode`       | `com.exafunction.windsurf` | —                    |
 
 **Detection logic:**
+
 ```
 if env("TERM_PROGRAM") == "vscode":
     bundle_id = env("__CFBundleIdentifier") or ""
-    
+
     if "windsurf" in bundle_id:
         config_dir = "~/.windsurf"
     else if env("CURSOR_CLI") exists:
         config_dir = "~/.cursor"
     else:
         config_dir = "~/.vscode"
-    
+
     return parse_vscode_settings(config_dir + "/settings.json")
 ```
 
 **Settings file schema:**
+
 ```json
 {
   "workbench.colorCustomizations": {
@@ -103,11 +108,13 @@ For native terminals, query the palette using OSC escape sequences.
 #### Query Format
 
 OSC queries follow this structure:
+
 ```
 ESC ] <code> ; ? BEL
 ```
 
 Where:
+
 - `ESC` = `\x1b` (escape character)
 - `]` = literal right bracket
 - `<code>` = the OSC code (4, 10, or 11)
@@ -117,16 +124,17 @@ Where:
 
 **Queries to send:**
 
-| Query | Purpose |
-|-------|---------|
-| `ESC ] 4 ; 0 ; ? BEL` | Query ANSI color 0 (black) |
-| `ESC ] 4 ; 1 ; ? BEL` | Query ANSI color 1 (red) |
-| ... | ... |
+| Query                  | Purpose                            |
+| ---------------------- | ---------------------------------- |
+| `ESC ] 4 ; 0 ; ? BEL`  | Query ANSI color 0 (black)         |
+| `ESC ] 4 ; 1 ; ? BEL`  | Query ANSI color 1 (red)           |
+| ...                    | ...                                |
 | `ESC ] 4 ; 15 ; ? BEL` | Query ANSI color 15 (bright white) |
-| `ESC ] 10 ; ? BEL` | Query default foreground |
-| `ESC ] 11 ; ? BEL` | Query default background |
+| `ESC ] 10 ; ? BEL`     | Query default foreground           |
+| `ESC ] 11 ; ? BEL`     | Query default background           |
 
 **Send all queries in a single write** to minimize round-trips:
+
 ```
 query_string = ""
 for i in 0..15:
@@ -140,6 +148,7 @@ write(stdout, query_string)
 #### Response Format
 
 Terminals respond with:
+
 ```
 ESC ] 4 ; <index> ; rgb:<rrrr>/<gggg>/<bbbb> <terminator>
 ESC ] 10 ; rgb:<rrrr>/<gggg>/<bbbb> <terminator>
@@ -147,13 +156,16 @@ ESC ] 11 ; rgb:<rrrr>/<gggg>/<bbbb> <terminator>
 ```
 
 Where:
+
 - `<rrrr>`, `<gggg>`, `<bbbb>` are 16-bit hex values (4 hex digits each)
 - `<terminator>` is either `BEL` (`\x07`) or `ST` (`\x1b\`)
 
 **Example response:**
+
 ```
 ESC ] 4 ; 1 ; rgb:cdcd/3131/3131 BEL
 ```
+
 This indicates ANSI color 1 (red) has RGB value `#cd3131` (using high 8 bits of each 16-bit component).
 
 #### Reading Responses
@@ -165,6 +177,7 @@ This indicates ANSI color 1 (red) has RGB value `#cd3131` (using high 8 bits of 
 5. **Restore stdin mode** (always, even on error)
 
 **Pseudocode:**
+
 ```
 set_raw_mode(stdin)
 start_time = now()
@@ -175,7 +188,7 @@ try:
     while (now() - start_time) < timeout:
         if data_available(stdin):
             buffer += read(stdin)
-            
+
             response_count = count_terminators(buffer)  // count BEL or ST
             if response_count >= expected_responses:
                 break
@@ -194,6 +207,7 @@ Pattern: ESC ] (4;(\d+);|10;|11;) rgb:([0-9a-f]{4})/([0-9a-f]{4})/([0-9a-f]{4}) 
 ```
 
 **Convert 16-bit to 8-bit RGB:**
+
 ```
 r = parse_hex(rrrr) >> 8  // Take high byte
 g = parse_hex(gggg) >> 8
@@ -214,6 +228,7 @@ else:
 ```
 
 For T2, determine light vs dark mode by computing background luminance:
+
 ```
 luminance = 0.299 * r + 0.587 * g + 0.114 * b
 is_light_mode = luminance > 128
@@ -225,22 +240,22 @@ is_light_mode = luminance > 128
 
 ### Tested Results (macOS, January 2025)
 
-| Terminal | T-Level | P95 Latency | Terminator | Detection |
-|----------|---------|-------------|------------|-----------|
-| Ghostty | T3 | 1.4ms | BEL | `TERM_PROGRAM=ghostty` |
-| Alacritty | T3 | 1.0ms | BEL | (none reliable) |
-| Terminal.app | T3 | 1.7ms | BEL | `TERM_PROGRAM=Apple_Terminal` |
-| kitty | T3 | 6.0ms | ST | `TERM=xterm-kitty` |
-| iTerm2 | T3 | <10ms | ST | `TERM_PROGRAM=iTerm.app` |
-| Hyper | T3 | <10ms | ST | `TERM_PROGRAM=Hyper` |
-| VS Code | T3 | 114ms | ST | Use config parsing |
-| Warp | T2 | N/A | BEL | `TERM_PROGRAM=WarpTerminal` |
+| Terminal     | T-Level | P95 Latency | Terminator | Detection                     |
+| ------------ | ------- | ----------- | ---------- | ----------------------------- |
+| Ghostty      | T3      | 1.4ms       | BEL        | `TERM_PROGRAM=ghostty`        |
+| Alacritty    | T3      | 1.0ms       | BEL        | (none reliable)               |
+| Terminal.app | T3      | 1.7ms       | BEL        | `TERM_PROGRAM=Apple_Terminal` |
+| kitty        | T3      | 6.0ms       | ST         | `TERM=xterm-kitty`            |
+| iTerm2       | T3      | <10ms       | ST         | `TERM_PROGRAM=iTerm.app`      |
+| Hyper        | T3      | <10ms       | ST         | `TERM_PROGRAM=Hyper`          |
+| VS Code      | T3      | 114ms       | ST         | Use config parsing            |
+| Warp         | T2      | N/A         | BEL        | `TERM_PROGRAM=WarpTerminal`   |
 
 ### Tested Results (Linux, January 2025)
 
-| Terminal | T-Level | Detection |
-|----------|---------|-----------|
-| GNOME Terminal (Ubuntu) | T3 | `TERM=xterm-256color` |
+| Terminal                | T-Level | Detection             |
+| ----------------------- | ------- | --------------------- |
+| GNOME Terminal (Ubuntu) | T3      | `TERM=xterm-256color` |
 
 ### Known Edge Cases
 
@@ -264,22 +279,22 @@ function rgb_to_hsl(r, g, b):
     max_c = max(r, g, b)
     min_c = min(r, g, b)
     l = (max_c + min_c) / 2
-    
+
     if max_c == min_c:
         h = s = 0
     else:
         d = max_c - min_c
         s = d / (2 - max_c - min_c) if l > 0.5 else d / (max_c + min_c)
-        
+
         if max_c == r:
             h = (g - b) / d + (6 if g < b else 0)
         else if max_c == g:
             h = (b - r) / d + 2
         else:
             h = (r - g) / d + 4
-        
+
         h = h / 6
-    
+
     return (h * 360, s, l)
 ```
 
@@ -313,13 +328,13 @@ function hsl_to_rgb(h, s, l):
             if t < 1/2: return q
             if t < 2/3: return p + (q - p) * (2/3 - t) * 6
             return p
-        
+
         q = l * (1 + s) if l < 0.5 else l + s - l * s
         p = 2 * l - q
         r = hue_to_rgb(p, q, h/360 + 1/3)
         g = hue_to_rgb(p, q, h/360)
         b = hue_to_rgb(p, q, h/360 - 1/3)
-    
+
     return (round(r * 255), round(g * 255), round(b * 255))
 ```
 
@@ -328,19 +343,19 @@ function hsl_to_rgb(h, s, l):
 ```
 function render_color(rgb, c_level):
     r, g, b = rgb
-    
+
     if c_level == C3:  // Truecolor
         return ESC + "[38;2;" + r + ";" + g + ";" + b + "m"
-    
+
     else if c_level == C2:  // ANSI-256
         index = quantize_to_ansi256(r, g, b)
         return ESC + "[38;5;" + index + "m"
-    
+
     else if c_level == C1:  // ANSI-16
         // Fall back to nearest base ANSI color
         index = nearest_ansi16(r, g, b)
         return ESC + "[" + (30 + index) + "m"
-    
+
     else:  // C0 - no color
         return ""
 ```
@@ -377,6 +392,7 @@ Create a visual test harness that displays:
 4. Instructions to change theme and re-run
 
 **Test in each target terminal:**
+
 - Verify capabilities detected correctly
 - Verify base colors match terminal's actual theme
 - Verify derived colors are visually correct
@@ -389,24 +405,24 @@ Measure probe latency to validate performance assumptions:
 ```
 for i in 1..N:
     start = high_resolution_timer()
-    
+
     send_queries()
     set_raw_mode()
-    
+
     first_response_time = null
     all_responses_time = null
-    
+
     while not timeout:
         if data_available():
             if first_response_time == null:
                 first_response_time = now() - start
-            
+
             read_and_parse()
-            
+
             if all_responses_received:
                 all_responses_time = now() - start
                 break
-    
+
     restore_mode()
     record(first_response_time, all_responses_time)
 
